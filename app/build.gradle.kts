@@ -7,6 +7,11 @@ android {
     namespace = "com.example.eco_connect_115a"
     compileSdk = 34
 
+    buildFeatures {
+        viewBinding = true
+    }
+
+
     defaultConfig {
         applicationId = "com.example.eco_connect_115a"
         minSdk = 24
@@ -36,7 +41,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

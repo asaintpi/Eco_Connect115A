@@ -3,7 +3,10 @@
     <string name="we_will_send_you_a">We will send you a</string>
     <string name="one_time_password">One Time Code</string>
     <string name="on_this_mobile_number">on this mobile number...</string>
-    <string name="otp_verification">OTP Verification</string>
-    <string name="type">Type Your Phone Number Here</string>
+    <string name="otp_verification">ECO</string>
+    <string name="type">Phone number</string>
     <string name="continued">Continue</string>
+    <string name="one_time_code_home">We will send you a one time code to get started</string>
+    <string name="connect_home">CONNECT</string>
+    <string name="eco_home">ECO</string>
 </resources>
