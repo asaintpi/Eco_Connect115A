@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "752638362026",
+    "project_id": "ecoconnect-d26ca",
+    "storage_bucket": "ecoconnect-d26ca.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:752638362026:android:bc3a0c383cac409e5b6bd3",
+        "android_client_info": {
+          "package_name": "com.example.eco_connect"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCZ7c_-zfY3UmcIM6soe4MLhH1-mUS_g_Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
