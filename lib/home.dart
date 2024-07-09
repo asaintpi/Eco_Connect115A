@@ -64,16 +64,15 @@ class _MyHomePageState extends State<MyHomePage> {
             Container(
               width: 640,
               child: TextField(
-                controller: _phoneController,  // Connect the TextEditingController
+                controller: _phoneController,
                 decoration: InputDecoration(
-                  labelText: 'Phone Number',
-                  hintText: 'Enter your phone number',
+                  hintText: 'Enter your phone number',  // Display as a hint, not as a floating label
                   border: OutlineInputBorder(),
                   fillColor: Colors.white,
                   filled: true,
                 ),
                 keyboardType: TextInputType.phone,
-              ),
+              )
             ),
             const SizedBox(height: 10),
             const Text(
