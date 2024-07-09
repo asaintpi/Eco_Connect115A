@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'security_code_screen.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -94,7 +95,11 @@ class _MyHomePageState extends State<MyHomePage> {
                 onPressed: () {
                   String phone = _phoneController.text.replaceAll(RegExp(r'\D'), ''); // Remove non-digit characters for pure number validation
                   if (phone.length == 10) {
-                    writeUserData(phone); // If exactly 10 digits, proceed to write to Firebase
+                    writeUserData(phone);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SecurityCodeScreen()),
+                    );// If exactly 10 digits, proceed to write to Firebase
                   } else {
                     // Show an error if not 10 digits
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -104,6 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                     );
                   }
+
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color(0xFF1DB954), // Green color for the button
