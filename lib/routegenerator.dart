@@ -1,4 +1,5 @@
 import 'package:eco_connect/Pages/Explore/explore.dart';
+import 'package:eco_connect/Pages/MakePost/makepost.dart';
 import 'package:eco_connect/home.dart';
 import 'package:flutter/material.dart';
 
@@ -10,11 +11,11 @@ class RouteGenerator {
     switch (settings.name) {
       case '/':
         return MaterialPageRoute(builder: (_) => MyHomePage());
-      case '/second':
+      case '/explore':
       // Validation of correct data type
-        if (args is String) {
-          return MaterialPageRoute(builder: (_) => MyExplorePage());
-        }
+        return MaterialPageRoute(builder: (_) => MyExplorePage());
+      case '/makepost':
+        return MaterialPageRoute(builder: (_) => MyMakePostPage());
         // If args is not of the correct type, return an error page.
         // You can also throw an exception while in development.
         return _errorRoute();
