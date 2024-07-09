@@ -100,7 +100,7 @@ class _SecurityCodeScreenState extends State<SecurityCodeScreen> {
             const Text(
               'Enter Your Security Code',
               style: TextStyle(
-                fontSize: 24,
+                fontSize: 36,
                 color: Colors.white,
                 fontWeight: FontWeight.w300,  // Set font weight to light
               ),
