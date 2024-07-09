@@ -15,7 +15,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> writeUserData() async {
     final database = FirebaseDatabase.instance.ref();
     final Map<String, dynamic> user = {
-      'name': 'John Doe',
+      'name': 'Tom Doe',
       'age': 30,
     };
 
@@ -33,14 +33,22 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Home Page'),
-      ),
-      body: Center(
+      body: Container(
+        color: const Color(0xFF121212), // Set background color to dark grey
+        alignment: Alignment.center,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text('Welcome to the Home Page!'),
+            Text(
+              'ECOCONNECT',
+              style: TextStyle(
+                fontSize: 100, // Adjust the size as needed
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF1DB954), // Set text color
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text('We will send you a one time code to get started'),
             ElevatedButton(
               onPressed: writeUserData,
               child: const Text('Write User Data'),

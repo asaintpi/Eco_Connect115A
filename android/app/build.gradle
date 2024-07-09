@@ -7,6 +7,7 @@ plugins {
 
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
+
 if (localPropertiesFile.exists()) {
     localPropertiesFile.withReader('UTF-8') { reader ->
         localProperties.load(reader)
@@ -25,7 +26,7 @@ if (flutterVersionName == null) {
 
 android {
     namespace "com.example.eco_connect"
-    compileSdk flutter.compileSdkVersion
+    compileSdk 35
     ndkVersion flutter.ndkVersion
 
     compileOptions {
