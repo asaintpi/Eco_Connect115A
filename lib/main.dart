@@ -3,6 +3,9 @@ import 'routegenerator.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'firebase_options.dart'; // Import the generated file
+import 'package:flutter/material.dart';
+import 'main_app.dart';  // Import MainApp
+
 
 void main() async {
 

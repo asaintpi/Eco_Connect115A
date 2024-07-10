@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'set_name_pfp.dart'; // Adjust this import path to match your project structure
 
 class SecurityCodeScreen extends StatefulWidget {
   const SecurityCodeScreen({super.key, required this.verificationId, required this.phone});
@@ -48,6 +49,8 @@ class _SecurityCodeScreenState extends State<SecurityCodeScreen> {
         print(
             'Verification successful, user signed in: ${userCredential.user}');
               writeUserData(widget.phone);
+              Navigator.push(context, MaterialPageRoute(builder: (context) => SetNameAndPfpPage(phone: widget.phone)));
+
         // Navigate to your desired screen
       } catch (e) {
         // Handle error (e.g., incorrect code)
