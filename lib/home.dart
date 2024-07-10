@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'security_code_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -12,6 +13,49 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController _phoneController = TextEditingController();  // Controller for the phone number input
+
+
+  Future<void> verifyPhoneNumber(String phone) async {
+    final _auth = FirebaseAuth.instance; // Create an instance of FirebaseAuth
+
+    try {
+      await _auth.verifyPhoneNumber(
+        phoneNumber: phone,
+        verificationCompleted: (PhoneAuthCredential credential) async {
+          // Verification completed automatically (rare on most devices)
+          await _auth.signInWithCredential(credential);
+          // Handle successful sign-in (navigate to a different screen, etc.)
+          print('Verification completed automatically');
+        },
+        verificationFailed: (FirebaseAuthException e) {
+          // Verification failed, handle error (invalid number, quota exceeded, etc.)
+          print('Verification failed: ${e.message}');
+        },
+        codeSent: (String verificationId, int? resendToken) {
+          // Code sent successfully, navigate to verification code input screen
+          print('Verification code sent: $verificationId');
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => SecurityCodeScreen(
+                verificationId: verificationId,
+              ),
+            ),
+          );
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {
+          // Code retrieval timed out, handle timeout (optional)
+          print('Verification timeout: $verificationId');
+        },
+      );
+    } catch (e) {
+      print('Failed to start phone verification: $e');
+    }
+  }
+
+
+
+
 
   Future<void> writeUserData(String phone) async {
     final database = FirebaseDatabase.instance.ref();
@@ -98,7 +142,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     writeUserData(phone);
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => SecurityCodeScreen()),
+                      MaterialPageRoute(builder: (context) => SecurityCodeScreen(verificationId: '',)),
                     );// If exactly 10 digits, proceed to write to Firebase
                   } else {
                     // Show an error if not 10 digits

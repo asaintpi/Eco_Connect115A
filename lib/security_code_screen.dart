@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class SecurityCodeScreen extends StatefulWidget {
-  const SecurityCodeScreen({super.key});
+  const SecurityCodeScreen({super.key, required String verificationId});
 
   @override
   _SecurityCodeScreenState createState() => _SecurityCodeScreenState();
