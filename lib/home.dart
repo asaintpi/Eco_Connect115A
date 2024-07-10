@@ -16,14 +16,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
   Future<void> verifyPhoneNumber(String phone) async {
-    final _auth = FirebaseAuth.instance; // Create an instance of FirebaseAuth
+    final FirebaseAuth auth = FirebaseAuth.instance; // Create an instance of FirebaseAuth
 
     try {
-      await _auth.verifyPhoneNumber(
+      await auth.verifyPhoneNumber(
         phoneNumber: phone,
         verificationCompleted: (PhoneAuthCredential credential) async {
           // Verification completed automatically (rare on most devices)
-          await _auth.signInWithCredential(credential);
+          await auth.signInWithCredential(credential);
           // Handle successful sign-in (navigate to a different screen, etc.)
           print('Verification completed automatically');
         },
@@ -39,6 +39,7 @@ class _MyHomePageState extends State<MyHomePage> {
             MaterialPageRoute(
               builder: (context) => SecurityCodeScreen(
                 verificationId: verificationId,
+                phone: phone,
               ),
             ),
           );
@@ -54,25 +55,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
 
-
-
-
-  Future<void> writeUserData(String phone) async {
-    final database = FirebaseDatabase.instance.ref();
-    final Map<String, dynamic> user = {
-      'phone': phone,  // Using the phone number from the input
-    };
-
-    try {
-      // Push data to the 'users' node with a unique key
-      await database.child('users').push().set(user);
-      // Show success message or perform other actions (optional)
-      print('Phone number written successfully!');
-    } on FirebaseException catch (e) {
-      // Handle potential errors during data writing
-      print('Error writing data: $e');
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -139,11 +121,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 onPressed: () {
                   String phone = _phoneController.text.replaceAll(RegExp(r'\D'), ''); // Remove non-digit characters for pure number validation
                   if (phone.length == 10) {
-                    writeUserData(phone);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => SecurityCodeScreen(verificationId: '',)),
-                    );// If exactly 10 digits, proceed to write to Firebase
+                    String phoneWithCode = '+1$phone';
+                    verifyPhoneNumber(phoneWithCode);
+                    //Navigator.push(
+                      //context,
+                      //MaterialPageRoute(builder: (context) => SecurityCodeScreen(verificationId: '',)),
+                    //);// If exactly 10 digits, proceed to write to Firebase
                   } else {
                     // Show an error if not 10 digits
                     ScaffoldMessenger.of(context).showSnackBar(

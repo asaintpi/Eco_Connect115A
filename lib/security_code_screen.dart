@@ -1,7 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
 class SecurityCodeScreen extends StatefulWidget {
-  const SecurityCodeScreen({super.key, required String verificationId});
+  const SecurityCodeScreen({super.key, required this.verificationId, required this.phone});
+  final String verificationId;
+  final String phone;
 
   @override
   _SecurityCodeScreenState createState() => _SecurityCodeScreenState();
@@ -9,7 +13,54 @@ class SecurityCodeScreen extends StatefulWidget {
 
 class _SecurityCodeScreenState extends State<SecurityCodeScreen> {
   final TextEditingController _codeController = TextEditingController();
-  final String _code = '';
+
+  Future<void> writeUserData(String phone) async {
+    final database = FirebaseDatabase.instance.ref();
+    final Map<String, dynamic> user = {
+      'phone': phone,  // Using the phone number from the input
+    };
+
+    try {
+      // Push data to the 'users' node with a unique key
+      await database.child('users').push().set(user);
+      // Show success message or perform other actions (optional)
+      print('Phone number written successfully!');
+    } on FirebaseException catch (e) {
+      // Handle potential errors during data writing
+      print('Error writing data: $e');
+    }
+  }
+
+
+  Future<void> verifyCode() async {
+    final String code = _codeController.text.trim();
+
+    if (code.length == 6) {
+      final PhoneAuthCredential credential = PhoneAuthProvider.credential(
+        verificationId: widget.verificationId,
+        smsCode: code,
+      );
+
+      try {
+        final UserCredential userCredential = await FirebaseAuth.instance
+            .signInWithCredential(credential);
+        // Handle successful sign-in (navigate to a different screen, etc.)
+        print(
+            'Verification successful, user signed in: ${userCredential.user}');
+              writeUserData(widget.phone);
+        // Navigate to your desired screen
+      } catch (e) {
+        // Handle error (e.g., incorrect code)
+        print('Error signing in with credential: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Invalid code. Please try again.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }}
+
 
   @override
   void initState() {
@@ -93,7 +144,7 @@ class _SecurityCodeScreenState extends State<SecurityCodeScreen> {
       body: Container(
         color: const Color(0xFF121212), // Set the background color to dark grey.
         alignment: Alignment.center,
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 200), // Reduced vertical padding
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 50), // Reduced vertical padding
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
@@ -124,6 +175,7 @@ class _SecurityCodeScreenState extends State<SecurityCodeScreen> {
                 onPressed: () {
                   if (_codeController.text.length == 6) {
                     // Implement validation and submission logic here
+                    verifyCode();
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text('Next page not designed yet lol.'),
