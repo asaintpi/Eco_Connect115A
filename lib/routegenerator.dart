@@ -1,5 +1,6 @@
 import 'package:eco_connect/Pages/Explore/explore.dart';
 import 'package:eco_connect/Pages/MakePost/makepost.dart';
+import 'package:eco_connect/Pages/ListPosts/listposts.dart';
 import 'package:eco_connect/home.dart';
 import 'package:flutter/material.dart';
 
