@@ -8,15 +8,18 @@ class MyMakePostPage extends StatefulWidget {
   @override
   State<MyMakePostPage> createState() => _MyMakePostPageState();
 }
+final List<String> serviceTypes = ['Housecleaning', 'Babysitting', 'News', 'Events', 'Lawn Care']; // List of service options
+String selectedService = serviceTypes[0]; // Initial selection
 
 class _MyMakePostPageState extends State<MyMakePostPage> {
 
-  Future<void> writePost({required String author, required String title, required String body}) async {
+  Future<void> writePost({required String author, required String title, required String body, required String service}) async {
     final database = FirebaseDatabase.instance.ref();
     final Map<String, dynamic> post = {
       'author': author,
       'title' : title,
       'body' : body,
+      'serviceType' : service,
     };
 
     try {
@@ -34,6 +37,8 @@ class _MyMakePostPageState extends State<MyMakePostPage> {
   final myAuthorController = TextEditingController();
   final myTitleController = TextEditingController();
   final myBodyController = TextEditingController();
+  final myServiceController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,10 +49,23 @@ class _MyMakePostPageState extends State<MyMakePostPage> {
         TextField(
             controller: myTitleController
         ),
+        DropdownButtonFormField<String>(
+          value: selectedService, // Set initial value
+          hint: Text('Select Service'), // Display text before selection
+          items: serviceTypes.map((serviceType) => DropdownMenuItem<String>(
+            value: serviceType,
+            child: Text(serviceType),
+          )).toList(),
+          onChanged: (String? newValue) {
+            setState(() {
+              selectedService = newValue!; // Update selectedService
+            });
+          },
+        ),
         TextField(
             controller: myBodyController
         ),
-        ElevatedButton(onPressed: () => writePost(author: myAuthorController.text, title: myTitleController.text, body: myBodyController.text), child: null,)
+        ElevatedButton(onPressed: () => writePost(author: myAuthorController.text, title: myTitleController.text, body: myBodyController.text, service: selectedService), child: null,)
       ]
       ),
     );
