@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'all_listings_page.dart';  // Ensure the path is correct
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -12,6 +13,12 @@ class _ProfilePageState extends State<ProfilePage> {
     setState(() {
       _selectedIndex = index;
     });
+    if (_selectedIndex == 0) {  // Assuming 'Home' is the first item
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => AllListingsPage()),
+      );
+    }
     // Add navigation logic here if needed, e.g., using Navigator to switch pages
   }
 
