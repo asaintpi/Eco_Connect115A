@@ -88,6 +88,13 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             const SizedBox(height: 20),
+            Image.asset(
+              'assets/images/elogo.png',
+              height: 100,
+              width: 100,
+              fit: BoxFit.contain, // Adjust the fit as needed
+            ),
+            SizedBox(height: 20),
             Container(
               width: 640,
               child: TextField(
