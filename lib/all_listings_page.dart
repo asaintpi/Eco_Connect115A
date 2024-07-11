@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'profile_page.dart';  // Make sure to have the correct path for ProfilePage
 
 class AllListingsPage extends StatefulWidget {
   @override
@@ -15,10 +16,56 @@ class _AllListingsPageState extends State<AllListingsPage> {
     Text('Profile Page', style: TextStyle(fontSize: 35, color: Colors.white)),
   ];
 
+
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
+    if (_selectedIndex == 3) {  // Assuming 'Profile' is the fourth item
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => ProfilePage()),
+      );
+    }
+  }
+
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _askLocationPermission();
+    });
+  }
+
+  void _askLocationPermission() {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // User must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Location Permission'),
+          content: Text('Do you allow us to access your location to show listings near you?'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Allow'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                // Enable location sharing functionality or set a state
+              },
+            ),
+            TextButton(
+              child: Text('Do Not Allow'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                // Proceed without enabling location sharing
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override

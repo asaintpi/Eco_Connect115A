@@ -5,6 +5,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
+import 'all_listings_page.dart';
+
 class SetNameAndPfpPage extends StatefulWidget {
   final String phone; // Add phone parameter to accept phone number
 
@@ -139,7 +141,8 @@ class _SetNameAndPfpPageState extends State<SetNameAndPfpPage> {
                   color: Colors.grey, // Specify the color if needed
                   thickness: 1, // Specify the thickness if needed
                 ),
-              ),              SizedBox(
+              ),
+              SizedBox(
                 width: 640,
                 height: 50,
                 child: ElevatedButton(
@@ -148,7 +151,11 @@ class _SetNameAndPfpPageState extends State<SetNameAndPfpPage> {
                     String description = _descriptionController.text.trim();
                     if (name.isNotEmpty) {
                       writeUserData(widget.phone, name, description).then((_) {
-                        Navigator.of(context).popUntil((route) => route.isFirst);
+                        // Navigate to AllListingsPage after the profile setup is complete
+                        Navigator.pushReplacement( // or Navigator.push if you want the user to be able to go back
+                          context,
+                          MaterialPageRoute(builder: (context) => AllListingsPage()),
+                        );
                       }).catchError((error) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
@@ -168,7 +175,7 @@ class _SetNameAndPfpPageState extends State<SetNameAndPfpPage> {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF1DB954),
-                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal:20),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(5.0),
                     ),
