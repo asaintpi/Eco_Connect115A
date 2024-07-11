@@ -94,17 +94,17 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 Column(
                   children: <Widget>[
-                    Text('Requests', style: TextStyle(color: Colors.white, fontSize: 18)),
-                    SizedBox(height: 8),
+                    const Text('Requests', style: TextStyle(color: Colors.white, fontSize: 18)),
+                    const SizedBox(height: 8),
                     ElevatedButton.icon(
                       onPressed: () {
                         // Handle Requests Button Press
                       },
-                      icon: Icon(Icons.request_page, color: Colors.white),
-                      label: Text('View', style: TextStyle(color: Colors.white)),
+                      icon: const Icon(Icons.request_page, color: Colors.white),
+                      label: const Text('View', style: TextStyle(color: Colors.white)),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF212121), // Button background color
-                        padding: EdgeInsets.symmetric(horizontal: 36, vertical: 18), // Button size
+                        backgroundColor: const Color(0xFF212121), // Button background color
+                        padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 18), // Button size
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30), // Rounded corners
                         ),
@@ -123,7 +123,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   // Add action for this button
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF1DB954), // Custom green color
+                  backgroundColor: const Color(0xFF1DB954), // Custom green color
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(5), // Rounded corners
                   ),
