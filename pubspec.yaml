@@ -34,6 +34,8 @@ dependencies:
   firebase_crashlytics: ^3.5.7
   firebase_database: ^10.0.7
   image_picker: ^1.1.2
+  geolocator: ^8.0.0  # Use the latest version available
+  permission_handler: ^8.0.0  # Use the latest version available
   firebase_auth:
   firebase_storage:
 
