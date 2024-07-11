@@ -5,8 +5,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
-
 import 'all_listings_page.dart';
+import 'package:path/path.dart' as Path;
 
 class SetNameAndPfpPage extends StatefulWidget {
   final String phone; // Add phone parameter to accept phone number
@@ -22,6 +22,8 @@ class _SetNameAndPfpPageState extends State<SetNameAndPfpPage> {
   final TextEditingController _descriptionController = TextEditingController();
   File? _image; // Variable to hold the selected image file
   Uint8List? _webImage;
+  String? _extension;
+
 
   Future<void> _pickImage() async {
     try {
@@ -62,17 +64,20 @@ class _SetNameAndPfpPageState extends State<SetNameAndPfpPage> {
     }
   }
 
-  Future<void> uploadImageToFirebase(final pickedFile) async {
+  Future<void> uploadImageToFirebase() async {
     try {
-      if (pickedFile == null) {
+      if (_image == null && _webImage == null) {
         return;
       }
 
-      final storageRef = FirebaseStorage.instance.ref().child('images/${DateTime
-          .now()
-          .millisecondsSinceEpoch}.jpg');
-      final uploadTask = storageRef.putFile(File(pickedFile.path));
-      await uploadTask.whenComplete(() => print('Image uploaded successfully'));
+      final storageRef = FirebaseStorage.instance.ref().child('images/${DateTime.now().millisecondsSinceEpoch}$_extension');
+      if (kIsWeb) {
+        final uploadTask = storageRef.putData(_webImage!);
+        await uploadTask.whenComplete(() => print('Image uploaded successfully'));
+      } else {
+        final uploadTask = storageRef.putFile(_image!);
+        await uploadTask.whenComplete(() => print('Image uploaded successfully'));
+      }
 
       final downloadUrl = await storageRef.getDownloadURL();
     } catch (e) {
@@ -157,6 +162,7 @@ class _SetNameAndPfpPageState extends State<SetNameAndPfpPage> {
                     String name = _nameController.text.trim();
                     String description = _descriptionController.text.trim();
                     if (name.isNotEmpty) {
+                      uploadImageToFirebase();
                       writeUserData(widget.phone, name, description).then((_) {
                         Navigator.pushReplacement(
                           context,
