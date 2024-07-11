@@ -180,12 +180,7 @@ class _SecurityCodeScreenState extends State<SecurityCodeScreen> {
                   if (_codeController.text.length == 6) {
                     // Implement validation and submission logic here
                     verifyCode();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Next page not designed yet lol.'),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
+
                   }
                 },
                 style: ElevatedButton.styleFrom(

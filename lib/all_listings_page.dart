@@ -70,10 +70,56 @@ class _AllListingsPageState extends State<AllListingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    const buttonTitles = [
+      "Add to a Service", "Members", "Babysitting",
+      "Housecleaning", "Borrow", "Playdates",
+      "News", "Events", "Lawn Care"
+    ];
+
     return Scaffold(
       backgroundColor: const Color(0xFF121212), // Dark grey background
       body: Center(
-        child: _widgetOptions.elementAt(_selectedIndex),
+        child: _selectedIndex == 0 ? Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 20.0, bottom: 20.0),
+              child: Text(
+                "0 Listings",
+                style: TextStyle(
+                  fontSize: 24, // Slightly larger text
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            Expanded(
+              child: GridView.count(
+                crossAxisCount: 3,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+                padding: const EdgeInsets.all(20),
+                children: List.generate(9, (index) {
+                  return ElevatedButton(
+                    onPressed: () {
+                      // Handle button press, could also navigate or update state
+                      print("${buttonTitles[index]} button pressed");
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: index == 0 ? Color(0xFF212121) : const Color(0xFF1DB954), // Conditional color
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20), // Rounded corners
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20), // Adjust padding for larger buttons
+                    ),
+                    child: Text(buttonTitles[index],
+                      style: TextStyle(fontSize: 16, color: Colors.white), // Ensure text color contrasts well with the button color
+                    ),
+                  );
+                }),
+              ),
+            ),
+          ],
+        ) : _widgetOptions.elementAt(_selectedIndex),
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
@@ -91,6 +137,10 @@ class _AllListingsPageState extends State<AllListingsPage> {
       ),
     );
   }
+
+
+
+
 }
 
 void main() {

@@ -166,7 +166,7 @@ class _SetNameAndPfpPageState extends State<SetNameAndPfpPage> {
                       });
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
+                        const SnackBar(
                           content: Text('Please enter your name'),
                           backgroundColor: Colors.red,
                         ),
