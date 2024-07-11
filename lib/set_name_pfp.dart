@@ -3,6 +3,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 import 'all_listings_page.dart';
 
@@ -22,7 +23,7 @@ class _SetNameAndPfpPageState extends State<SetNameAndPfpPage> {
 
   Future<void> _pickImage() async {
     final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
-
+    uploadImageToFirebase(pickedFile);
     if (pickedFile != null) {
       setState(() {
         _image = File(pickedFile.path); // Update the state with the selected image file
@@ -43,6 +44,33 @@ class _SetNameAndPfpPageState extends State<SetNameAndPfpPage> {
       print('User data updated successfully!');
     } on FirebaseException catch (e) {
       print('Error writing user data: $e');
+    }
+  }
+
+  Future<void> uploadImageToFirebase(final pickedFile) async {
+    try {
+      // Get the image file from ImagePicker
+
+      if (pickedFile == null) {
+        // User canceled image selection
+        return;
+      }
+
+      // Upload the image file to Firebase Cloud Storage
+      final storageRef = FirebaseStorage.instance.ref().child('images/${DateTime
+          .now()
+          .millisecondsSinceEpoch}.jpg');
+      final uploadTask = storageRef.putFile(File(pickedFile.path));
+      await uploadTask.whenComplete(() => print('Image uploaded successfully'));
+
+      // Get the download URL for the uploaded image
+      final downloadUrl = await storageRef.getDownloadURL();
+
+      // Save the download URL to the Realtime Database
+      // (You can choose an appropriate database node and structure)
+      // Example: databaseRef.child('users').child(userId).set({'profileImageUrl': downloadUrl});
+    } catch (e) {
+      print('Error uploading image: $e');
     }
   }
 
