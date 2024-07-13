@@ -8,10 +8,12 @@ class MyMakePostPage extends StatefulWidget {
   @override
   State<MyMakePostPage> createState() => _MyMakePostPageState();
 }
-final List<String> serviceTypes = ['Housecleaning', 'Babysitting', 'News', 'Events', 'Lawn Care']; // List of service options
+final List<String> serviceTypes = ['Housecleaning', 'Babysitting', 'News', 'Events', 'Lawn Care', 'Garden', 'Compost', 'Carpool', 'Other']; // List of service options
 String selectedService = serviceTypes[0]; // Initial selection
 
 class _MyMakePostPageState extends State<MyMakePostPage> {
+  final _titleController = TextEditingController();
+  final _bodyController = TextEditingController();
 
   Future<void> writePost({required String author, required String title, required String body, required String service}) async {
     final database = FirebaseDatabase.instance.ref();
@@ -34,8 +36,13 @@ class _MyMakePostPageState extends State<MyMakePostPage> {
   }
 
 
-  final _titleController = TextEditingController();
-  final _bodyController = TextEditingController();
+  @override
+  void dispose() {
+    //releases memory
+    _titleController.dispose();
+    _bodyController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,14 +56,29 @@ class _MyMakePostPageState extends State<MyMakePostPage> {
             child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
+                  const Padding(
+                    padding: EdgeInsets.only(top: 20.0, bottom: 20.0),
+                    child: Text(
+                      "Create a Listing",
+                      style: TextStyle(
+                        fontSize: 24, // Slightly larger text
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                 const SizedBox(height: 50),
           Container(
             width: 640,
             child: TextField(
               controller: _titleController,
               decoration: const InputDecoration(
-                labelText: 'Title',
-                labelStyle: TextStyle(color: Color(0xFFB3B3B3)),
+                hintText: 'Title',
+                hintStyle: TextStyle(color: Color(0xFFB3B3B3)),
+                enabledBorder: const OutlineInputBorder(
+                  // width: 0.0 produces a thin "hairline" border
+                  borderSide: const BorderSide(color: Colors.grey, width: 0.0),
+                ),
                 border: OutlineInputBorder(),
                 fillColor: Color(0xFF212121),
                 filled: true,
