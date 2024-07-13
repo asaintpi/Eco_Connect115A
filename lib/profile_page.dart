@@ -1,4 +1,7 @@
+import 'package:eco_connect/globalstate.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'all_listings_page.dart';  // Ensure the path is correct
 
 class ProfilePage extends StatefulWidget {
@@ -8,6 +11,37 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   int _selectedIndex = 3; // Index for 'Profile', assuming it's the fourth item
+  String name = '';
+  String bio = '';
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUserData();
+  }
+
+  void fetchUserData() async {
+    final String phoneNumber = Provider.of<UserState>(context, listen: false).phone;
+
+    final database = FirebaseDatabase.instance.ref();
+    final snapshot = await database.child('users').orderByChild('phone').equalTo(phoneNumber).get();
+
+    if (snapshot.exists) {
+      final userData = snapshot.value as Map<dynamic, dynamic>;
+      final userKey = userData.keys.first;
+      final user = userData[userKey];
+
+      setState(() {
+        name = user['name'] ?? 'No name';
+        bio = user['description'] ?? '';
+      });
+    } else {
+      setState(() {
+        name = 'No user found';
+        bio = '';
+      });
+    }
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -41,8 +75,8 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
             const SizedBox(height: 20), // Space between profile picture and name
-            const Text(
-              'John Doe', // Display the placeholder name
+             Text(
+              name, // Display the placeholder name
               style: TextStyle(
                 color: Colors.white, // Set text color to white
                 fontSize: 24, // Set font size
@@ -67,8 +101,8 @@ class _ProfilePageState extends State<ProfilePage> {
             Container(
               padding: EdgeInsets.all(16), // Padding inside the container for the text
               color: Color(0xFF212121), // Darker grey background for the bio section
-              child: const Text(
-                'Bio: Enthusiastic tech lover and coder. Excited about the future of AI and technology.',
+              child: Text(
+                bio,
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.white,

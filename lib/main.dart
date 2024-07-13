@@ -4,6 +4,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'firebase_options.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:eco_connect/globalstate.dart';
+import 'package:provider/provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 
@@ -21,14 +23,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'EcoConnect',
-      home: MyHomePage(),
-      onGenerateRoute: RouteGenerator.generateRoute,
-
+    return ChangeNotifierProvider(
+      create: (context) => UserState(),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'EcoConnect',
+        home: MyHomePage(),
+        onGenerateRoute: RouteGenerator.generateRoute,
+      ),
     );
   }
+
 }
 
 Future<void> requestLocationPermission() async {

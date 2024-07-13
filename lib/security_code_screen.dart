@@ -1,6 +1,9 @@
+import 'package:eco_connect/all_listings_page.dart';
+import 'package:eco_connect/globalstate.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'set_name_pfp.dart'; // Adjust this import path to match your project structure
 
 
@@ -33,6 +36,13 @@ class _SecurityCodeScreenState extends State<SecurityCodeScreen> {
     }
   }
 
+  Future<bool> checkIfUserExists(String phone) async {
+    final database = FirebaseDatabase.instance.ref();
+    final snapshot = await database.child('users').orderByChild('phone').equalTo(phone).get();
+
+    return snapshot.exists;
+  }
+
 
   Future<void> verifyCode() async {
     final String code = _codeController.text.trim();
@@ -49,8 +59,17 @@ class _SecurityCodeScreenState extends State<SecurityCodeScreen> {
         // Handle successful sign-in (navigate to a different screen, etc.)
         print(
             'Verification successful, user signed in: ${userCredential.user}');
-              writeUserData(widget.phone);
-              Navigator.push(context, MaterialPageRoute(builder: (context) => SetNameAndPfpPage(phone: widget.phone)));
+              bool userExists = await checkIfUserExists(widget.phone);
+              Provider.of<UserState>(context, listen: false).setPhone(widget.phone);
+              if(userExists){
+                print("User exists");
+                Navigator.push(context, MaterialPageRoute(builder: (context) => AllListingsPage()));
+              }
+              else {
+                writeUserData(widget.phone);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => SetNameAndPfpPage(phone: widget.phone)));
+
+              }
 
         // Navigate to your desired screen
       } catch (e) {

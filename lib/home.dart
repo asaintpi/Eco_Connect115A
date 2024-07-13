@@ -1,6 +1,8 @@
+import 'package:eco_connect/globalstate.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'security_code_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -26,6 +28,7 @@ class _MyHomePageState extends State<MyHomePage> {
           await auth.signInWithCredential(credential);
           // Handle successful sign-in (navigate to a different screen, etc.)
           print('Verification completed automatically');
+          Provider.of<UserState>(context, listen: false).setPhone(phone);
         },
         verificationFailed: (FirebaseAuthException e) {
           // Verification failed, handle error (invalid number, quota exceeded, etc.)
