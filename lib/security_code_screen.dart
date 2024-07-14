@@ -1,4 +1,5 @@
 import 'package:eco_connect/all_listings_page.dart';
+import 'package:eco_connect/chat.dart';
 import 'package:eco_connect/globalstate.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
