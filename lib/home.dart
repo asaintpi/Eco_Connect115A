@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'security_code_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -16,6 +17,27 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController _phoneController = TextEditingController();  // Controller for the phone number input
 
+  Future<UserCredential> signInWithGoogle() async {
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+    final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth?.accessToken,
+      idToken: googleAuth?.idToken,
+    );
+
+    return await FirebaseAuth.instance.signInWithCredential(credential);
+  }
+
+  Future<void> _signInWithGoogle() async {
+    try {
+      UserCredential userCredential = await signInWithGoogle();
+      print('Google Sign-In successful: ${userCredential.user}');
+      // You can now navigate to another screen or perform other actions
+    } catch (e) {
+      print('Google Sign-In failed: $e');
+    }
+  }
 
   Future<void> verifyPhoneNumber(String phone) async {
     final FirebaseAuth auth = FirebaseAuth.instance; // Create an instance of FirebaseAuth
