@@ -1,6 +1,10 @@
+import 'package:eco_connect/all_listings_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../globalstate.dart';
 
 class MyMakePostPage extends StatefulWidget {
   const MyMakePostPage({super.key});
@@ -14,13 +18,44 @@ String selectedService = serviceTypes[0]; // Initial selection
 class _MyMakePostPageState extends State<MyMakePostPage> {
   final _titleController = TextEditingController();
   final _bodyController = TextEditingController();
+  String name = "";
+
+  void initState() {
+    super.initState();
+    fetchUserData();
+  }
+
+  void fetchUserData() async {
+    final String phoneNumber = Provider.of<UserState>(context, listen: false).phone;
+
+    final database = FirebaseDatabase.instance.ref();
+    final snapshot = await database.child('users').orderByChild('phone').equalTo(phoneNumber).get();
+
+    if (snapshot.exists) {
+      final userData = snapshot.value as Map<dynamic, dynamic>;
+      final userKey = userData.keys.first;
+      final user = userData[userKey];
+
+      setState(() {
+        name = user['name'] ?? 'No name';
+      });
+    } else {
+      setState(() {
+        name = 'No user found';
+      });
+    }
+  }
 
   Future<void> writePost({required String author, required String title, required String body, required String service}) async {
+    // gets the UTC time and date at the moment of post
+    final now = DateTime.now();
+    //root database reference
     final database = FirebaseDatabase.instance.ref();
     final Map<String, dynamic> post = {
       'author': author,
       'title' : title,
       'body' : body,
+      'time' : now.toString(),
       'serviceType' : service,
     };
 
@@ -141,11 +176,28 @@ class _MyMakePostPageState extends State<MyMakePostPage> {
                   Container(
                     width: 640,
                     child: ElevatedButton(
-                      onPressed: () => writePost(
-                          author: 'temp',
-                          title: _titleController.text,
-                          body: _bodyController.text,
-                          service: selectedService),
+                      onPressed: () {
+                        if (_titleController.text != '' && _bodyController.text != '') {
+                          writePost(
+                              author: name,
+                              title: _titleController.text,
+                              body: _bodyController.text,
+                              service: selectedService);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => AllListingsPage()),
+                          );
+                        }
+                        else {
+                          // empty fields
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Fill in all fields.'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                        },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF1DB954),
                         padding: const EdgeInsets.symmetric(
