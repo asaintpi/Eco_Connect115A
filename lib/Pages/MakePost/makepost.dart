@@ -1,10 +1,11 @@
 import 'package:eco_connect/all_listings_page.dart';
+import 'package:eco_connect/globalstate.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../globalstate.dart';
+import 'package:eco_connect/globalstate.dart';
 
 class MyMakePostPage extends StatefulWidget {
   const MyMakePostPage({super.key});
@@ -50,9 +51,11 @@ class _MyMakePostPageState extends State<MyMakePostPage> {
     // gets the UTC time and date at the moment of post
     final now = DateTime.now();
     //root database reference
+    //final String phoneNumber = Provider.of<UserState>(context, listen: false).phone;
     final database = FirebaseDatabase.instance.ref();
     final Map<String, dynamic> post = {
       'author': author,
+      'personal id': Provider.of<UserState>(context, listen: false).phone,
       'title' : title,
       'body' : body,
       'time' : now.toString(),
