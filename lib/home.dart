@@ -1,3 +1,4 @@
+import 'package:eco_connect/all_listings_page.dart';
 import 'package:eco_connect/globalstate.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -16,7 +17,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController _phoneController = TextEditingController();  // Controller for the phone number input
-
+  bool emailsuccess = false;
   Future<UserCredential> signInWithGoogle() async {
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
     final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
@@ -29,10 +30,84 @@ class _MyHomePageState extends State<MyHomePage> {
     return await FirebaseAuth.instance.signInWithCredential(credential);
   }
 
+  Future<UserCredential> signInWithEmailAndPassword(String email, String password) async {
+    return await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
+  }
+
+  Future<void> _signInWithEmailAndPassword(String email, String password) async {
+    try {
+      UserCredential userCredential = await signInWithEmailAndPassword(email, password);
+      print('Email/Password Sign-In successful: ${userCredential.user}');
+      emailsuccess = true;
+      //_promptForPhoneVerification();
+    } catch (e) {
+      print('Email/Password Sign-In failed: $e');
+    }
+  }
+
+  void _showEmailPasswordSignInDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        final TextEditingController _emailController = TextEditingController();
+        final TextEditingController _passwordController = TextEditingController();
+
+
+        return AlertDialog(
+          title: Text('Sign In with Email/Password'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _emailController,
+                decoration: InputDecoration(
+                  hintText: 'Enter your email',
+                ),
+                keyboardType: TextInputType.emailAddress,
+              ),
+              TextField(
+                controller: _passwordController,
+                decoration: InputDecoration(
+                  hintText: 'Enter your password',
+                ),
+                obscureText: true,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                String email = _emailController.text;
+                String password = _passwordController.text;
+                await _signInWithEmailAndPassword(email, password);
+                if(emailsuccess) {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => AllListingsPage()));
+                  }
+                Navigator.of(context).pop();
+              },
+              child: Text('Sign In'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<void> _signInWithGoogle() async {
     try {
       UserCredential userCredential = await signInWithGoogle();
       print('Google Sign-In successful: ${userCredential.user}');
+      /*Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SecurityCodeScreen(
+            verificationId: verificationId,
+            phone: phone,
+          ),
+        ),
+      );
+
+       */
       // You can now navigate to another screen or perform other actions
     } catch (e) {
       print('Google Sign-In failed: $e');
@@ -121,17 +196,17 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             SizedBox(height: 20),
             Container(
-              width: 640,
-              child: TextField(
-                controller: _phoneController,
-                decoration: InputDecoration(
-                  hintText: 'Enter your phone number',  // Display as a hint, not as a floating label
-                  border: OutlineInputBorder(),
-                  fillColor: Colors.white,
-                  filled: true,
-                ),
-                keyboardType: TextInputType.phone,
-              )
+                width: 640,
+                child: TextField(
+                  controller: _phoneController,
+                  decoration: InputDecoration(
+                    hintText: 'Enter your phone number',  // Display as a hint, not as a floating label
+                    border: OutlineInputBorder(),
+                    fillColor: Colors.white,
+                    filled: true,
+                  ),
+                  keyboardType: TextInputType.phone,
+                )
             ),
             const SizedBox(height: 10),
             const Text(
@@ -140,12 +215,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 color: Color(0xFFB3B3B3),
               ),
             ),
-            const SizedBox(height: 20),
 
-    // backgroundColor: Color(0xFF1DB954),
-    // padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-    // shape: RoundedRectangleBorder(
-    // borderRadius: BorderRadius.circular(5.0),
             SizedBox(
               width: 640,
               height: 50,
@@ -156,8 +226,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     String phoneWithCode = '+1$phone';
                     verifyPhoneNumber(phoneWithCode);
                     //Navigator.push(
-                      //context,
-                      //MaterialPageRoute(builder: (context) => SecurityCodeScreen(verificationId: '',)),
+                    //context,
+                    //MaterialPageRoute(builder: (context) => SecurityCodeScreen(verificationId: '',)),
                     //);// If exactly 10 digits, proceed to write to Firebase
                   } else {
                     // Show an error if not 10 digits
@@ -182,6 +252,31 @@ class _MyHomePageState extends State<MyHomePage> {
 
                 child: const Text(
                   'Continue',
+                  style: TextStyle(fontSize: 18, color: Colors.white),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // backgroundColor: Color(0xFF1DB954),
+            // padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+            // shape: RoundedRectangleBorder(
+            // borderRadius: BorderRadius.circular(5.0),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: 640,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: _showEmailPasswordSignInDialog,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFF1DB954), // Green color for the button
+                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5.0), // More rectangular, less rounded
+                  ),
+                ),
+                child: const Text(
+                  'Sign In with Email/Password',
                   style: TextStyle(fontSize: 18, color: Colors.white),
                 ),
               ),
