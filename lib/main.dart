@@ -1,9 +1,12 @@
+
 import 'home.dart';
 import 'routegenerator.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'firebase_options.dart'; // Import the generated file
+import 'firebase_options.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:eco_connect/globalstate.dart';
+import 'package:provider/provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 
@@ -21,14 +24,21 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Firebase Realtime Database Demo',
-      initialRoute: '/',
-      onGenerateRoute: RouteGenerator.generateRoute,
-
+    return MultiProvider(providers: [
+        ChangeNotifierProvider(
+        create: (context) => UserState()),
+        ChangeNotifierProvider(
+        create: (context) => LocationProvider()),
+    ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'EcoConnect',
+        home: MyHomePage(),
+        onGenerateRoute: RouteGenerator.generateRoute,
+      ),
     );
   }
+
 }
 
 Future<void> requestLocationPermission() async {
@@ -65,4 +75,3 @@ Future<void> _determinePosition() async {
     print('Failed to get current location.');
   }
 }
-
