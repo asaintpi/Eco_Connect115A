@@ -68,7 +68,7 @@ class _SecurityCodeScreenState extends State<SecurityCodeScreen> {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => AllListingsPage()));
               }
               else {
-                writeUserData(widget.phone);
+                //writeUserData(widget.phone);
                 Navigator.push(context, MaterialPageRoute(builder: (context) => SetupEmailPasswordPage(phone: widget.phone,)));
 
               }

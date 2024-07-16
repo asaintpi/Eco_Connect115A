@@ -11,8 +11,8 @@ import 'package:path/path.dart' as Path;
 
 class SetNameAndPfpPage extends StatefulWidget {
   final String phone; // Add phone parameter to accept phone number
-
-  const SetNameAndPfpPage({super.key, required this.phone});
+  final String email;
+  const SetNameAndPfpPage({super.key, required this.phone, required this.email});
 
   @override
   _SetNameAndPfpPageState createState() => _SetNameAndPfpPageState();
@@ -24,7 +24,6 @@ class _SetNameAndPfpPageState extends State<SetNameAndPfpPage> {
   File? _image; // Variable to hold the selected image file
   Uint8List? _webImage;
   String? _extension;
-
 
   Future<void> _pickImage() async {
     try {
@@ -48,21 +47,26 @@ class _SetNameAndPfpPageState extends State<SetNameAndPfpPage> {
     }
   }
 
-  Future<void> writeUserData(String phone, String name,
+  Future<void> writeUserData(String phone, String email, String name,
       String description) async {
     final database = FirebaseDatabase.instance.ref();
-    final userRef = database.child('users').child(phone); // Use phone as key
+    final Map<String, dynamic> user = {
+      'phone': phone,
+      'email': email,
+      'name': name,
+      'description': description,
+    };
 
     try {
-      await userRef.set({
-        'phone': phone,
-        'name': name,
-        'description': description,
-      });
-      print('User data updated successfully!');
+      // Push data to the 'users' node with a unique key
+      await database.child('users').push().set(user);
+      // Show success message or perform other actions (optional)
+      print('Phone number written successfully!');
     } on FirebaseException catch (e) {
-      print('Error writing user data: $e');
+      // Handle potential errors during data writing
+      print('Error writing data: $e');
     }
+
   }
 
   Future<void> uploadImageToFirebase() async {
@@ -164,7 +168,7 @@ class _SetNameAndPfpPageState extends State<SetNameAndPfpPage> {
                     String description = _descriptionController.text.trim();
                     if (name.isNotEmpty) {
                       uploadImageToFirebase();
-                      writeUserData(widget.phone, name, description).then((_) {
+                      writeUserData(widget.phone, widget.email, name, description).then((_) {
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
@@ -235,5 +239,5 @@ class _SetNameAndPfpPageState extends State<SetNameAndPfpPage> {
   }
 }
 void main() {
-  runApp(MaterialApp(home: SetNameAndPfpPage(phone: '',)));
+  runApp(MaterialApp(home: SetNameAndPfpPage(phone: '', email: '')));
 }
