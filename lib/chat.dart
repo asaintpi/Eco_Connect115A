@@ -74,43 +74,90 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Chat with ${widget.otherUserPhone}'),
+        backgroundColor: const Color(0xFF212121), // Updated AppBar color
+        iconTheme: IconThemeData(color: const Color(0xFFB3B3B3)), // Set back arrow color
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Expanded(
+              child: Center(
+                child: Text(
+                  'Chat with ${widget.otherUserPhone}',
+                  style: TextStyle(color: const Color(0xFFB3B3B3)), // Set text color
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
+      backgroundColor: const Color(0xFF121212), // Dark grey background
+
       body: Column(
         children: [
           Expanded(
             child: ListView.builder(
               itemCount: _messages.length,
               itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(_messages[index]['message']),
-                  subtitle: Text(_messages[index]['sender_phone'] == senderNumber ? 'You' : widget.otherUserPhone),
+                final message = _messages[index];
+                final isMe = message['sender_phone'] == senderNumber;
+                return Align(
+                  alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: isMe ? const Color(0xFF1DB954) : Colors.grey[800],
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    padding: const EdgeInsets.all(10),
+                    margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                    child: Text(
+                      message['message'],
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
                 );
               },
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _messageController,
-                    decoration: InputDecoration(
-                      labelText: 'Type a message',
+            child: Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFF212121),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _messageController,
+                      style: const TextStyle(color: Color(0xFFD9D9D9)), // Text color
+                      decoration: InputDecoration(
+                        hintText: 'Type a message',
+                        hintStyle: TextStyle(color: Colors.grey), // Hint text color
+                        border: InputBorder.none,
+                      ),
+                      onSubmitted: (value) => _sendMessage(),
                     ),
-                    onSubmitted: (value) => _sendMessage(),
                   ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.send),
-                  onPressed: _sendMessage,
-                ),
-              ],
+                  const SizedBox(width: 8),
+                  IconButton(
+                    icon: const Icon(Icons.send),
+                    color: const Color(0xFF1DB954), // Send button color
+                    onPressed: _sendMessage,
+                  ),
+                ],
+              ),
             ),
           ),
         ],
       ),
     );
   }
+}
+
+void main() {
+  runApp(MaterialApp(home: ChatPage(otherUserPhone: '123-456-7890')));
 }
