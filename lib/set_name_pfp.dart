@@ -1,11 +1,13 @@
+import 'package:eco_connect/chat.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-
+import 'package:flutter/foundation.dart';
 import 'all_listings_page.dart';
+import 'package:path/path.dart' as Path;
 
 class SetNameAndPfpPage extends StatefulWidget {
   final String phone; // Add phone parameter to accept phone number
@@ -20,18 +22,34 @@ class _SetNameAndPfpPageState extends State<SetNameAndPfpPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   File? _image; // Variable to hold the selected image file
+  Uint8List? _webImage;
+  String? _extension;
+
 
   Future<void> _pickImage() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
-    uploadImageToFirebase(pickedFile);
-    if (pickedFile != null) {
-      setState(() {
-        _image = File(pickedFile.path); // Update the state with the selected image file
-      });
+    try {
+      final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        if (kIsWeb) {
+          final bytes = await pickedFile.readAsBytes();
+          setState(() {
+            _webImage = bytes;
+          });
+        } else {
+          setState(() {
+            _image = File(pickedFile.path);
+          });
+        }
+      } else {
+        print('No image selected.');
+      }
+    } catch (e) {
+      print('Error picking image: $e');
     }
   }
 
-  Future<void> writeUserData(String phone, String name, String description) async {
+  Future<void> writeUserData(String phone, String name,
+      String description) async {
     final database = FirebaseDatabase.instance.ref();
     final userRef = database.child('users').child(phone); // Use phone as key
 
@@ -47,28 +65,22 @@ class _SetNameAndPfpPageState extends State<SetNameAndPfpPage> {
     }
   }
 
-  Future<void> uploadImageToFirebase(final pickedFile) async {
+  Future<void> uploadImageToFirebase() async {
     try {
-      // Get the image file from ImagePicker
-
-      if (pickedFile == null) {
-        // User canceled image selection
+      if (_image == null && _webImage == null) {
         return;
       }
 
-      // Upload the image file to Firebase Cloud Storage
-      final storageRef = FirebaseStorage.instance.ref().child('images/${DateTime
-          .now()
-          .millisecondsSinceEpoch}.jpg');
-      final uploadTask = storageRef.putFile(File(pickedFile.path));
-      await uploadTask.whenComplete(() => print('Image uploaded successfully'));
+      final storageRef = FirebaseStorage.instance.ref().child('images/${DateTime.now().millisecondsSinceEpoch}$_extension');
+      if (kIsWeb) {
+        final uploadTask = storageRef.putData(_webImage!);
+        await uploadTask.whenComplete(() => print('Image uploaded successfully'));
+      } else {
+        final uploadTask = storageRef.putFile(_image!);
+        await uploadTask.whenComplete(() => print('Image uploaded successfully'));
+      }
 
-      // Get the download URL for the uploaded image
       final downloadUrl = await storageRef.getDownloadURL();
-
-      // Save the download URL to the Realtime Database
-      // (You can choose an appropriate database node and structure)
-      // Example: databaseRef.child('users').child(userId).set({'profileImageUrl': downloadUrl});
     } catch (e) {
       print('Error uploading image: $e');
     }
@@ -78,7 +90,8 @@ class _SetNameAndPfpPageState extends State<SetNameAndPfpPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        color: const Color(0xFF121212), // Set the background color to dark grey.
+        color: const Color(0xFF121212),
+        // Set the background color to dark grey.
         alignment: Alignment.center,
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 60.0),
         child: SingleChildScrollView( // Add SingleChildScrollView to handle overflow when keyboard appears
@@ -93,8 +106,8 @@ class _SetNameAndPfpPageState extends State<SetNameAndPfpPage> {
                 child: CircleAvatar(
                   radius: 40,
                   backgroundColor: Colors.grey,
-                  backgroundImage: _image != null ? FileImage(_image!) : null,
-                  child: _image == null ? const Icon(Icons.camera_alt, color: Colors.white) : null,
+                  backgroundImage: getBackgroundImage(),
+                  child: _image == null ? const Icon(Icons.add_a_photo) : null,
                 ),
               ),
               const SizedBox(height: 10),
@@ -120,12 +133,12 @@ class _SetNameAndPfpPageState extends State<SetNameAndPfpPage> {
               const SizedBox(height: 30),
               Container(
                 width: 640,
-                height: 200,  // Increased height from your initial setting
+                height: 200,
                 child: TextField(
                   controller: _descriptionController,
-                  maxLines: 8,  // Set to an arbitrary number to utilize the height
+                  maxLines: 8,
                   decoration: InputDecoration(
-                    alignLabelWithHint: true,  // Ensures the label (hint text) starts at the top left
+                    alignLabelWithHint: true,
                     hintText: 'Enter a description for your profile',
                     hintStyle: TextStyle(color: Colors.grey[400]),
                     border: OutlineInputBorder(),
@@ -136,10 +149,10 @@ class _SetNameAndPfpPageState extends State<SetNameAndPfpPage> {
                 ),
               ),
               const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 190), // Adjust the padding value to suit your needs
+                padding: EdgeInsets.symmetric(horizontal: 190),
                 child: Divider(
-                  color: Colors.grey, // Specify the color if needed
-                  thickness: 1, // Specify the thickness if needed
+                  color: Colors.grey,
+                  thickness: 1,
                 ),
               ),
               SizedBox(
@@ -150,11 +163,12 @@ class _SetNameAndPfpPageState extends State<SetNameAndPfpPage> {
                     String name = _nameController.text.trim();
                     String description = _descriptionController.text.trim();
                     if (name.isNotEmpty) {
+                      uploadImageToFirebase();
                       writeUserData(widget.phone, name, description).then((_) {
-                        // Navigate to AllListingsPage after the profile setup is complete
-                        Navigator.pushReplacement( // or Navigator.push if you want the user to be able to go back
+                        Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(builder: (context) => AllListingsPage()),
+                          MaterialPageRoute(
+                              builder: (context) => AllListingsPage()),
                         );
                       }).catchError((error) {
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -166,7 +180,7 @@ class _SetNameAndPfpPageState extends State<SetNameAndPfpPage> {
                       });
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
+                        const SnackBar(
                           content: Text('Please enter your name'),
                           backgroundColor: Colors.red,
                         ),
@@ -175,7 +189,8 @@ class _SetNameAndPfpPageState extends State<SetNameAndPfpPage> {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF1DB954),
-                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal:20),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 20),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(5.0),
                     ),
@@ -189,7 +204,7 @@ class _SetNameAndPfpPageState extends State<SetNameAndPfpPage> {
                   ),
                 ),
               ),
-               Text(
+              Text(
                 'Members in your neighborhood will be able to see your name, profile picture, and service listings',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 12, color: Colors.grey[500]),
@@ -199,6 +214,24 @@ class _SetNameAndPfpPageState extends State<SetNameAndPfpPage> {
         ),
       ),
     );
+  }
+
+  ImageProvider? getBackgroundImage() {
+    if (_image != null || _webImage != null) {
+      if (kIsWeb) {
+        print("web");
+        return MemoryImage(_webImage!); // Use NetworkImage for web
+
+      } else {
+        print("mobile");
+        return FileImage(_image!); // Use FileImage for mobile
+
+      }
+    } else {
+      //return const AssetImage('assets/placeholder.png'); // Placeholder image
+      print("null");
+      return null;
+    }
   }
 }
 void main() {
