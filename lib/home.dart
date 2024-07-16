@@ -80,10 +80,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 String email = _emailController.text;
                 String password = _passwordController.text;
                 await _signInWithEmailAndPassword(email, password);
+                print(emailsuccess);
+                Navigator.of(context).pop();
                 if(emailsuccess) {
                   Navigator.push(context, MaterialPageRoute(builder: (context) => AllListingsPage()));
                 }
-                Navigator.of(context).pop();
+
               },
               child: Text('Sign In'),
             ),

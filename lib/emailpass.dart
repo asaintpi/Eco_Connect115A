@@ -62,6 +62,19 @@ class _SetupEmailPasswordPageState extends State<SetupEmailPasswordPage> {
   }
 
   Future<void> _registerWithEmailPassword() async {
+    String email = _emailController.text;
+    String password = _passwordController.text;
+
+    // Validate password length
+    if (password.length < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Password must be at least 6 characters long.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
     try {
       UserCredential userCredential = await _auth
           .createUserWithEmailAndPassword(
@@ -70,6 +83,12 @@ class _SetupEmailPasswordPageState extends State<SetupEmailPasswordPage> {
       );
       email = _emailController.text;
       print('Email/Password Registration successful: ${userCredential.user}');
+      if (FirebaseAuth.instance.currentUser != null) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => SetNameAndPfpPage(phone: widget.phone, email: email)),
+        );
+      }
       // Navigate to another page or show success message
 
     } catch (e) {
@@ -115,12 +134,7 @@ class _SetupEmailPasswordPageState extends State<SetupEmailPasswordPage> {
             ElevatedButton(
                 onPressed: () async {
                   await _registerWithEmailPassword();
-                  if (FirebaseAuth.instance.currentUser != null) {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => SetNameAndPfpPage(phone: widget.phone, email: email)),
-                    );
-                  }
+
                 },
                 child: Text('Register')
 
