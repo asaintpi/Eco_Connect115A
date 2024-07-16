@@ -87,6 +87,7 @@ class _AllListingsPageState extends State<AllListingsPage> {
       "News", "Events", "Lawn Care", "Garden", "Compost", "Carpool", "Other",
     ];
 
+    final database = FirebaseDatabase.instance.ref().child('posts');
 
 
     return Scaffold(
@@ -136,6 +137,58 @@ class _AllListingsPageState extends State<AllListingsPage> {
                   );
                 }),
               ),
+            ),
+            Expanded(
+                child: FirebaseAnimatedList(query: database,
+                    itemBuilder: (BuildContext context, DataSnapshot snapshot, Animation<double> animation, int index) {
+                      Map post = snapshot.value as Map;
+                      post['key'] = post.keys;
+                      return Container(
+                          padding: const EdgeInsets.all(15),
+                          child: Card(
+                            color: Color(0xFF212121),
+                            child: Column(
+                              children: [
+                                const SizedBox(height: 20,),
+                                Row (
+                                children: [
+                                  const SizedBox(width: 25,),
+                                  CircleAvatar(
+                                  radius: 15,
+                                  backgroundColor: Colors.grey[400], // Set the circle color to a shade of grey
+                                  child: const Icon(
+                                    Icons.person,
+                                    size: 15,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                  const SizedBox(width: 20, height: 20,),
+                                  Text(post['author'],
+                                      style: const TextStyle(color: Color(0xFFB3B3B3),),
+                                  textAlign: TextAlign.left,
+                                  ),
+                                ]
+                                ),
+                                  const SizedBox(height: 20),
+                                  Row (
+                                  children: [
+                                    const SizedBox(height: 20, width: 20),
+                                    Text(post['title'] + '\n',
+                                        style: const TextStyle(color: Color(0xFFB3B3B3),),
+                                    ),
+                                  ],
+                                  ),
+                                Text(post['body'],
+                                  style: const TextStyle(color: Color(0xFFB3B3B3),),
+                                ),
+                                const SizedBox(height: 20, width: 20),
+                              ],
+                          ),
+                          ),
+                      );
+                    }
+                )
+
             ),
           ],
 
