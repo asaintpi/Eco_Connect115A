@@ -8,6 +8,7 @@ class AllListingsPage extends StatefulWidget {
 
 class _AllListingsPageState extends State<AllListingsPage> {
   int _selectedIndex = 0;
+  bool _locationPermissionAsked = false; // State variable to track if the dialog has been shown
 
   static const List<Widget> _widgetOptions = <Widget>[
     Text('Home Page', style: TextStyle(fontSize: 35, color: Colors.white)),
@@ -30,19 +31,23 @@ class _AllListingsPageState extends State<AllListingsPage> {
     }
   }
 
-
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _askLocationPermission();
+      if (!_locationPermissionAsked) {
+        _askLocationPermission();
+      }
     });
   }
 
   void _askLocationPermission() {
+    setState(() {
+      _locationPermissionAsked = true; // Mark as asked
+    });
     showDialog(
       context: context,
-      barrierDismissible: false, // User must tap button!
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Location Permission'),
@@ -52,14 +57,12 @@ class _AllListingsPageState extends State<AllListingsPage> {
               child: Text('Allow'),
               onPressed: () {
                 Navigator.of(context).pop();
-                // Enable location sharing functionality or set a state
               },
             ),
             TextButton(
               child: Text('Do Not Allow'),
               onPressed: () {
                 Navigator.of(context).pop();
-                // Proceed without enabling location sharing
               },
             ),
           ],
