@@ -1,3 +1,4 @@
+
 import 'home.dart';
 import 'routegenerator.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -23,8 +24,12 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => UserState(),
+    return MultiProvider(providers: [
+        ChangeNotifierProvider(
+        create: (context) => UserState()),
+        ChangeNotifierProvider(
+        create: (context) => LocationProvider()),
+    ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'EcoConnect',

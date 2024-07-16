@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'globalstate.dart';
 import 'profile_page.dart';  // Make sure to have the correct path for ProfilePage
+import 'package:provider/provider.dart';
+
 
 class AllListingsPage extends StatefulWidget {
   @override
@@ -34,12 +37,16 @@ class _AllListingsPageState extends State<AllListingsPage> {
   @override
   void initState() {
     super.initState();
+    bool locationPerm = Provider.of<LocationProvider>(context, listen: false).locationOn;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _askLocationPermission();
+      if(locationPerm == false) {
+        _askLocationPermission();
+      }
     });
   }
 
   void _askLocationPermission() {
+
     showDialog(
       context: context,
       barrierDismissible: false, // User must tap button!
@@ -51,6 +58,7 @@ class _AllListingsPageState extends State<AllListingsPage> {
             TextButton(
               child: Text('Allow'),
               onPressed: () {
+                Provider.of<LocationProvider>(context, listen: false).changeLocationPermission(true);
                 Navigator.of(context).pop();
                 // Enable location sharing functionality or set a state
               },
