@@ -3,8 +3,13 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  file_selector_windows
   firebase_auth
   firebase_core
+<<<<<<< HEAD
+=======
+  firebase_storage
+>>>>>>> c4c3dd625d7b6cfc333e94c5765ebd789a6169b0
   geolocator_windows
   permission_handler_windows
 )
