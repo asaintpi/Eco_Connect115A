@@ -2,6 +2,7 @@ import 'package:eco_connect/Pages/MakePost/makepost.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
+import 'chat.dart';
 import 'globalstate.dart';
 import 'profile_page.dart';  // Make sure to have the correct path for ProfilePage
 import 'package:provider/provider.dart';
@@ -181,7 +182,35 @@ class _AllListingsPageState extends State<AllListingsPage> {
                                 Text(post['body'],
                                   style: const TextStyle(color: Color(0xFFB3B3B3),),
                                 ),
+                                SizedBox(height: 30),
+                                Container(
+                                  width: 150,
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => ChatPage(otherUserPhone: post['personal id'],)),
+                                      );
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF1DB954),
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 10, horizontal: 20),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(5.0),
+                                      ),
+                                    ),
+                                    child: const Text(
+                                      'Message',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ),
+                                ),
                                 const SizedBox(height: 20, width: 20),
+
                               ],
                           ),
                           ),
