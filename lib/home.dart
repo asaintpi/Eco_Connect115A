@@ -41,7 +41,12 @@ class _MyHomePageState extends State<MyHomePage> {
       emailsuccess = true;
       //_promptForPhoneVerification();
     } catch (e) {
-      print('Email/Password Sign-In failed: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to sign in: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -80,7 +85,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 String email = _emailController.text;
                 String password = _passwordController.text;
                 await _signInWithEmailAndPassword(email, password);
-                print(emailsuccess);
+                //print(emailsuccess);
                 Navigator.of(context).pop();
                 if(emailsuccess) {
                   Navigator.push(context, MaterialPageRoute(builder: (context) => AllListingsPage()));
