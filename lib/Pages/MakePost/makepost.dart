@@ -186,10 +186,7 @@ class _MyMakePostPageState extends State<MyMakePostPage> {
                               title: _titleController.text,
                               body: _bodyController.text,
                               service: selectedService);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => AllListingsPage()),
-                          );
+                          Navigator.pop(context);
                         }
                         else {
                           // empty fields

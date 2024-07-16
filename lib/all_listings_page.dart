@@ -1,3 +1,6 @@
+import 'package:eco_connect/Pages/MakePost/makepost.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
 import 'globalstate.dart';
 import 'profile_page.dart';  // Make sure to have the correct path for ProfilePage
@@ -81,14 +84,17 @@ class _AllListingsPageState extends State<AllListingsPage> {
     const buttonTitles = [
       "Add to a Service", "Members", "Babysitting",
       "Housecleaning", "Borrow", "Playdates",
-      "News", "Events", "Lawn Care"
+      "News", "Events", "Lawn Care", "Garden", "Compost", "Carpool", "Other",
     ];
+
+
 
     return Scaffold(
       backgroundColor: const Color(0xFF121212), // Dark grey background
       body: Center(
         child: _selectedIndex == 0 ? Column(
           children: [
+            const SizedBox(height: 40,),
             Padding(
               padding: const EdgeInsets.only(top: 20.0, bottom: 20.0),
               child: Text(
@@ -100,16 +106,21 @@ class _AllListingsPageState extends State<AllListingsPage> {
                 ),
               ),
             ),
-            Expanded(
-              child: GridView.count(
-                crossAxisCount: 3,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
+            Container(
+                height: 200,
+                child: ListView(
+                scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.all(20),
-                children: List.generate(9, (index) {
+                children: List.generate(buttonTitles.length, (index) {
                   return ElevatedButton(
                     onPressed: () {
                       // Handle button press, could also navigate or update state
+                      if(index == 0) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => MyMakePostPage()),
+                        );
+                      }
                       print("${buttonTitles[index]} button pressed");
                     },
                     style: ElevatedButton.styleFrom(
@@ -127,8 +138,10 @@ class _AllListingsPageState extends State<AllListingsPage> {
               ),
             ),
           ],
+
         ) : _widgetOptions.elementAt(_selectedIndex),
       ),
+
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
