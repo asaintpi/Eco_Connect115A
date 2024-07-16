@@ -83,7 +83,7 @@ class _SetupEmailPasswordPageState extends State<SetupEmailPasswordPage> {
 
 
 
-    @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -111,15 +111,15 @@ class _SetupEmailPasswordPageState extends State<SetupEmailPasswordPage> {
 
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () async {
-      await _registerWithEmailPassword();
-      if (FirebaseAuth.instance.currentUser != null) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => AllListingsPage()),
-        );
-      }
-      },
+                onPressed: () async {
+                  await _registerWithEmailPassword();
+                  if (FirebaseAuth.instance.currentUser != null) {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => AllListingsPage()),
+                    );
+                  }
+                },
                 child: Text('Register')
 
             ),
