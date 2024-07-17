@@ -1,8 +1,7 @@
-import 'package:eco_connect/globalstate.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'all_listings_page.dart';  // Ensure the path is correct
+import 'edit_profile_page.dart';  // Import the Edit Profile Page
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -11,34 +10,24 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   int _selectedIndex = 3; // Index for 'Profile', assuming it's the fourth item
-  String name = '';
-  String bio = '';
+  String name = 'John Doe'; // Placeholder name
+  String bio = 'This is a placeholder bio for John Doe.';
+  File? _profileImage;
 
   @override
   void initState() {
     super.initState();
-    fetchUserData();
+    _loadProfileImage();
   }
 
-  void fetchUserData() async {
-    final String phoneNumber = Provider.of<UserState>(context, listen: false).phone;
+  void _loadProfileImage() async {
+    final directory = await getApplicationDocumentsDirectory();
+    final path = directory.path;
+    final file = File('$path/profile_image.png');
 
-    final database = FirebaseDatabase.instance.ref();
-    final snapshot = await database.child('users').orderByChild('phone').equalTo(phoneNumber).get();
-
-    if (snapshot.exists) {
-      final userData = snapshot.value as Map<dynamic, dynamic>;
-      final userKey = userData.keys.first;
-      final user = userData[userKey];
-
+    if (file.existsSync()) {
       setState(() {
-        name = user['name'] ?? 'No name';
-        bio = user['description'] ?? '';
-      });
-    } else {
-      setState(() {
-        name = 'No user found';
-        bio = '';
+        _profileImage = file;
       });
     }
   }
@@ -47,12 +36,6 @@ class _ProfilePageState extends State<ProfilePage> {
     setState(() {
       _selectedIndex = index;
     });
-    if (_selectedIndex == 0) {  // Assuming 'Home' is the first item
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => AllListingsPage()),
-      );
-    }
     // Add navigation logic here if needed, e.g., using Navigator to switch pages
   }
 
@@ -68,14 +51,17 @@ class _ProfilePageState extends State<ProfilePage> {
             CircleAvatar(
               radius: 50,
               backgroundColor: Colors.grey[400], // Set the circle color to a shade of grey
-              child: const Icon(
+              backgroundImage: _profileImage != null ? FileImage(_profileImage!) : null,
+              child: _profileImage == null
+                  ? const Icon(
                 Icons.person,
                 size: 50,
                 color: Colors.white,
-              ),
+              )
+                  : null,
             ),
             const SizedBox(height: 20), // Space between profile picture and name
-             Text(
+            Text(
               name, // Display the placeholder name
               style: TextStyle(
                 color: Colors.white, // Set text color to white
@@ -90,7 +76,7 @@ class _ProfilePageState extends State<ProfilePage> {
               endIndent: 50, // Adjust the end indent as well
             ),
             const SizedBox(height: 10), // Space between the divider and location
-             Text(
+            Text(
               'Santa Cruz, CA', // Display the placeholder location
               style: TextStyle(
                 color: Colors.grey[500], // Set the text color to a lighter grey
@@ -161,7 +147,10 @@ class _ProfilePageState extends State<ProfilePage> {
               height: 50,
               child: ElevatedButton(
                 onPressed: () {
-                  // Add action for this button
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => EditProfilePage()),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF1DB954), // Custom green color
@@ -196,12 +185,10 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 }
 
-
-
 void main() {
   runApp(MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: ProfilePage(),
+    debugShowCheckedModeBanner: false,
+    home: ProfilePage(),
     theme: ThemeData(
       primarySwatch: Colors.blue,
       visualDensity: VisualDensity.adaptivePlatformDensity,
