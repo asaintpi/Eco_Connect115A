@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'edit_profile_page.dart';  // Import the Edit Profile Page
+import 'all_listings_page.dart';  // Import the All Listings Page
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 
@@ -36,7 +37,13 @@ class _ProfilePageState extends State<ProfilePage> {
     setState(() {
       _selectedIndex = index;
     });
-    // Add navigation logic here if needed, e.g., using Navigator to switch pages
+    if (_selectedIndex == 0) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => AllListingsPage()),
+            (Route<dynamic> route) => false,
+      );
+    }
   }
 
   @override
