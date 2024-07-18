@@ -1,7 +1,11 @@
+import 'dart:convert';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:http/http.dart' as http;
 import 'package:eco_connect/globalstate.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:provider/provider.dart';
 
 class ChatPage extends StatefulWidget {
@@ -17,15 +21,29 @@ class _ChatPageState extends State<ChatPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final DatabaseReference _database = FirebaseDatabase.instance.reference();
   User? _user;
+  String? fcmToken;
   TextEditingController _messageController = TextEditingController();
   List<Map<String, dynamic>> _messages = [];
   String senderNumber = '';
 
-  @override
-  void initState() {
-    super.initState();
-    senderNumber = Provider.of<UserState>(context, listen: false).phone;
-    _loadMessages();
+  Future<void> _getFcmToken() async {
+    fcmToken = await FirebaseMessaging.instance.getToken();
+    print('FCM Token: $fcmToken');
+
+    // You can store the token in your database or send it to your server for future use.
+  }
+
+  Future<void> requestNotificationPermission() async {
+    NotificationSettings settings = await FirebaseMessaging.instance.requestPermission();
+    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      print('User granted permission for notifications');
+    } else {
+      print('User declined permission for notifications');
+    }
+  }
+
+  String _getChatId(String phone1, String phone2) {
+    return phone1.compareTo(phone2) < 0 ? '${phone1}_$phone2' : '${phone2}_$phone1';
   }
 
   void _loadMessages() {
@@ -47,8 +65,12 @@ class _ChatPageState extends State<ChatPage> {
     });
   }
 
-  String _getChatId(String phone1, String phone2) {
-    return phone1.compareTo(phone2) < 0 ? '${phone1}_$phone2' : '${phone2}_$phone1';
+  @override
+  void initState() {
+    super.initState();
+    senderNumber = Provider.of<UserState>(context, listen: false).phone;
+    //_setupFCM();
+    _loadMessages();
   }
 
   void _sendMessage() {
@@ -63,12 +85,37 @@ class _ChatPageState extends State<ChatPage> {
         'timestamp': DateTime.now().millisecondsSinceEpoch,
       }).then((_) {
         print('Message sent');
+        //_sendNotification(widget.otherUserPhone, _messageController.text);
       }).catchError((error) {
         print('Error sending message: $error');
       });
       _messageController.clear();
     }
   }
+
+  Future<void> _sendFCMMessage(String token, String message) async {
+    final serverKey = 'YOUR_SERVER_KEY';
+    final url = 'https://fcm.googleapis.com/fcm/send';
+
+    await http.post(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'key=$serverKey',
+      },
+      body: jsonEncode({
+        'notification': {
+          'title': 'New Message',
+          'body': message,
+        },
+        'priority': 'high',
+        'to': token,
+      }),
+    );
+  }
+
+
+
 
   @override
   Widget build(BuildContext context) {

@@ -7,8 +7,8 @@ import 'firebase_options.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:eco_connect/globalstate.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:permission_handler/permission_handler.dart';
-
 
 void main() async {
 
