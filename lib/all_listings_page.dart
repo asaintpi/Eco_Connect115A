@@ -1,4 +1,5 @@
 import 'package:eco_connect/Pages/MakePost/makepost.dart';
+import 'package:eco_connect/search_users.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
@@ -241,6 +242,14 @@ class _AllListingsPageState extends State<AllListingsPage> {
                                   builder: (context) => MyMakePostPage()),
                             );
                           }
+                          else if (index == 1) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) =>
+                                  SearchUsersPage(),
+                            )
+                            );
+                          }
                           print("${buttonTitles[index]} button pressed");
                           if(_tagSelection == index) {//unselect category to show all
                             setState(() {
@@ -284,7 +293,6 @@ class _AllListingsPageState extends State<AllListingsPage> {
                   itemBuilder: (BuildContext context, DataSnapshot snapshot,
                       Animation<double> animation, int index) {
                     Map post = snapshot.value as Map;
-                    //post['key'] = snapshot.key;
                     if(post['serviceType'].toString().toLowerCase() == buttonTitles[_tagSelection].toString().toLowerCase()){
                       return PostList(Post: post);
                     }
