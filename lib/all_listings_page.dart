@@ -4,7 +4,8 @@ import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
 import 'chat.dart';
 import 'globalstate.dart';
-import 'profile_page.dart';  // Make sure to have the correct path for ProfilePage
+import 'dm_page.dart';
+import 'profile_page.dart';
 import 'package:provider/provider.dart';
 
 class AllListingsPage extends StatefulWidget {
@@ -27,7 +28,7 @@ class _AllListingsPageState extends State<AllListingsPage> {
     setState(() {
       _selectedIndex = index;
     });
-    if (_selectedIndex == 3) {  // Assuming 'Profile' is the fourth item
+    if (_selectedIndex == 3) { // Assuming 'Profile' is the fourth item
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => ProfilePage()),
@@ -38,7 +39,9 @@ class _AllListingsPageState extends State<AllListingsPage> {
   @override
   void initState() {
     super.initState();
-    bool locationPerm = Provider.of<LocationProvider>(context, listen: false).locationOn;
+    bool locationPerm = Provider
+        .of<LocationProvider>(context, listen: false)
+        .locationOn;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!_locationPermissionAsked) {
         if (locationPerm == false) {
@@ -59,12 +62,14 @@ class _AllListingsPageState extends State<AllListingsPage> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Location Permission'),
-          content: Text('Do you allow us to access your location to show listings near you?'),
+          content: Text(
+              'Do you allow us to access your location to show listings near you?'),
           actions: <Widget>[
             TextButton(
               child: Text('Allow'),
               onPressed: () {
-                Provider.of<LocationProvider>(context, listen: false).changeLocationPermission(true);
+                Provider.of<LocationProvider>(context, listen: false)
+                    .changeLocationPermission(true);
                 Navigator.of(context).pop();
               },
             ),
@@ -115,29 +120,37 @@ class _AllListingsPageState extends State<AllListingsPage> {
                 child: Row(
                   children: List.generate(buttonTitles.length, (index) {
                     return Container(
-                      width: 150, // Set a fixed width for the buttons
-                      margin: const EdgeInsets.symmetric(horizontal: 10), // Add some margin between buttons
+                      width: 150,
+                      // Set a fixed width for the buttons
+                      margin: const EdgeInsets.symmetric(horizontal: 10),
+                      // Add some margin between buttons
                       child: ElevatedButton(
                         onPressed: () {
                           // Handle button press, could also navigate or update state
                           if (index == 0) {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => MyMakePostPage()),
+                              MaterialPageRoute(
+                                  builder: (context) => MyMakePostPage()),
                             );
                           }
                           print("${buttonTitles[index]} button pressed");
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: index == 0 ? Color(0xFF212121) : const Color(0xFF1DB954), // Conditional color
+                          backgroundColor: index == 0
+                              ? Color(0xFF212121)
+                              : const Color(0xFF1DB954), // Conditional color
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20), // Rounded corners
+                            borderRadius: BorderRadius.circular(
+                                20), // Rounded corners
                           ),
-                          padding: const EdgeInsets.symmetric(vertical: 20), // Adjust padding for larger buttons
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 20), // Adjust padding for larger buttons
                         ),
                         child: Text(
                           buttonTitles[index],
-                          style: TextStyle(fontSize: 16, color: Colors.white), // Ensure text color contrasts well with the button color
+                          style: TextStyle(fontSize: 16, color: Colors.white),
+                          // Ensure text color contrasts well with the button color
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -149,75 +162,108 @@ class _AllListingsPageState extends State<AllListingsPage> {
             Expanded(
               child: FirebaseAnimatedList(
                   query: database,
-                  itemBuilder: (BuildContext context, DataSnapshot snapshot, Animation<double> animation, int index) {
+                  itemBuilder: (BuildContext context, DataSnapshot snapshot,
+                      Animation<double> animation, int index) {
                     Map post = snapshot.value as Map;
-                    post['key'] = post.keys;
+                    post['key'] = snapshot.key;
                     return Container(
                       padding: const EdgeInsets.all(15),
                       child: Card(
                         color: Color(0xFF212121),
-                        child: Column(
+                        child: Stack(
                           children: [
-                            const SizedBox(height: 20,),
-                            Row (
-                                children: [
-                                  const SizedBox(width: 25,),
-                                  CircleAvatar(
-                                    radius: 15,
-                                    backgroundColor: Colors.grey[400], // Set the circle color to a shade of grey
-                                    child: const Icon(
-                                      Icons.person,
-                                      size: 15,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 20, height: 20,),
-                                  Text(post['author'],
-                                    style: const TextStyle(color: Color(0xFFB3B3B3),),
-                                    textAlign: TextAlign.left,
-                                  ),
-                                ]
-                            ),
-                            const SizedBox(height: 20),
-                            Row (
+                            Column(
                               children: [
-                                const SizedBox(height: 20, width: 20),
-                                Text(post['title'] + '\n',
+                                const SizedBox(height: 20,),
+                                Row(
+                                    children: [
+                                      const SizedBox(width: 25,),
+                                      CircleAvatar(
+                                        radius: 15,
+                                        backgroundColor: Colors.grey[400],
+                                        // Set the circle color to a shade of grey
+                                        child: const Icon(
+                                          Icons.person,
+                                          size: 15,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 20, height: 20,),
+                                      Text(post['author'],
+                                        style: const TextStyle(
+                                          color: Color(0xFFB3B3B3),),
+                                        textAlign: TextAlign.left,
+                                      ),
+                                    ]
+                                ),
+                                const SizedBox(height: 20),
+                                Row(
+                                  children: [
+                                    const SizedBox(height: 20, width: 20),
+                                    Text(post['title'] + '\n',
+                                      style: const TextStyle(
+                                        color: Color(0xFFB3B3B3),),
+                                    ),
+                                  ],
+                                ),
+                                Text(post['body'],
                                   style: const TextStyle(color: Color(0xFFB3B3B3),),
                                 ),
+                                SizedBox(height: 30),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      width: 110,
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(builder: (context) =>
+                                                ChatPage(
+                                                  otherUserPhone: post['personal id'],)),
+                                          );
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: const Color(0xFF1DB954),
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 10, horizontal: 20),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(5.0),
+                                          ),
+                                        ),
+                                        child: const Text(
+                                          'Message',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 20, width: 20),
                               ],
                             ),
-                            Text(post['body'],
-                              style: const TextStyle(color: Color(0xFFB3B3B3),),
-                            ),
-                            SizedBox(height: 30),
-                            Container(
-                              width: 150,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(builder: (context) => ChatPage(otherUserPhone: post['personal id'],)),
-                                  );
+                            Positioned(
+                              top: 10,
+                              right: 10,
+                              child: GestureDetector(
+                                onTap: () {
+                                  _reportPost(post);
                                 },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF1DB954),
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 10, horizontal: 20),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(5.0),
-                                  ),
-                                ),
-                                child: const Text(
-                                  'Message',
-                                  style: TextStyle(
+                                child: CircleAvatar(
+                                  radius: 15,
+                                  backgroundColor: Colors.red,
+                                  child: Icon(
+                                    Icons.flag,
                                     color: Colors.white,
-                                    fontSize: 16,
+                                    size: 20,
                                   ),
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 20, width: 20),
                           ],
                         ),
                       ),
@@ -229,21 +275,39 @@ class _AllListingsPageState extends State<AllListingsPage> {
         )
             : _widgetOptions.elementAt(_selectedIndex),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => DMPage()),
+          );
+        },
+        child: Icon(Icons.message),
+        backgroundColor: Colors.white,
+      ),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
-          BottomNavigationBarItem(icon: Icon(Icons.business_center), label: 'Jobs'),
-          BottomNavigationBarItem(icon: Icon(Icons.account_circle), label: 'Profile'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.business_center), label: 'Jobs'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.account_circle), label: 'Profile'),
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: const Color(0xFF1DB954),
         onTap: _onItemTapped,
-        backgroundColor: Colors.grey[850], // Darker grey for contrast
+        backgroundColor: Colors.grey[850],
+        // Darker grey for contrast
         unselectedItemColor: Colors.white,
-        type: BottomNavigationBarType.fixed, // Fixed type for better UI consistency
+        type: BottomNavigationBarType
+            .fixed, // Fixed type for better UI consistency
       ),
     );
+  }
+
+  void _reportPost(Map post) {
+    print('Reported post: ${post['key']}');
   }
 }
 
