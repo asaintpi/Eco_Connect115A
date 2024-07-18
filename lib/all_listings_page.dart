@@ -15,7 +15,9 @@ class AllListingsPage extends StatefulWidget {
 
 class _AllListingsPageState extends State<AllListingsPage> {
   int _selectedIndex = 0;
+  int _tagSelection = 0;
   bool _locationPermissionAsked = false; // State variable to track if the dialog has been shown
+
 
   static const List<Widget> _widgetOptions = <Widget>[
     Text('Home Page', style: TextStyle(fontSize: 35, color: Colors.white)),
@@ -87,12 +89,117 @@ class _AllListingsPageState extends State<AllListingsPage> {
 
   @override
   Widget build(BuildContext context) {
+
     const buttonTitles = [
       "Add to a Service", "Members", "Babysitting",
       "Housecleaning", "Borrow", "Playdates",
       "News", "Events", "Lawn Care", "Garden", "Compost", "Carpool", "Other",
     ];
 
+    Widget PostList({required Map Post}) {
+      return  Container(
+        padding: const EdgeInsets.all(15),
+        child: Card(
+          color: Color(0xFF212121),
+          child: Stack(
+            children: [
+              Column(
+                children: [
+                  const SizedBox(height: 20,),
+                  Row(
+                      children: [
+                        const SizedBox(width: 25,),
+                        CircleAvatar(
+                          radius: 15,
+                          backgroundColor: Colors.grey[400],
+                          // Set the circle color to a shade of grey
+                          child: const Icon(
+                            Icons.person,
+                            size: 15,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(width: 20, height: 20,),
+                        Text(Post['author'],
+                          style: const TextStyle(
+                            color: Color(0xFFB3B3B3),),
+                          textAlign: TextAlign.left,
+                        ),
+                      ]
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      const SizedBox(height: 20, width: 20),
+                      Text(Post['title'] + '\n',
+                        style: const TextStyle(
+                          color: Color(0xFFB3B3B3),),
+                      ),
+                    ],
+                  ),
+                  Text(Post['body'],
+                    style: const TextStyle(color: Color(0xFFB3B3B3),),
+                  ),
+                  SizedBox(height: 30),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 110,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) =>
+                                  ChatPage(
+                                    otherUserPhone: Post['personal id'],)),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF1DB954),
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 10, horizontal: 20),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5.0),
+                            ),
+                          ),
+                          child: const Text(
+                            'Message',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20, width: 20),
+                ],
+              ),
+              Positioned(
+                top: 10,
+                right: 10,
+                child: GestureDetector(
+                  onTap: () {
+                    _reportPost(Post);
+                  },
+                  child: CircleAvatar(
+                    radius: 15,
+                    backgroundColor: Colors.red,
+                    child: Icon(
+                      Icons.flag,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
     final database = FirebaseDatabase.instance.ref().child('posts');
 
     return Scaffold(
@@ -135,10 +242,22 @@ class _AllListingsPageState extends State<AllListingsPage> {
                             );
                           }
                           print("${buttonTitles[index]} button pressed");
+                          if(_tagSelection == index) {//unselect category to show all
+                            setState(() {
+                              _tagSelection = 0;
+                            });
+                          }
+                          else if (index != 0 && index != 1) {
+                            setState(() {
+                              _tagSelection = index;
+                            });
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: index == 0
                               ? Color(0xFF212121)
+                          : _tagSelection == index
+                            ? Color(0xFF212121)
                               : const Color(0xFF1DB954), // Conditional color
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(
@@ -165,109 +284,16 @@ class _AllListingsPageState extends State<AllListingsPage> {
                   itemBuilder: (BuildContext context, DataSnapshot snapshot,
                       Animation<double> animation, int index) {
                     Map post = snapshot.value as Map;
-                    post['key'] = snapshot.key;
-                    return Container(
-                      padding: const EdgeInsets.all(15),
-                      child: Card(
-                        color: Color(0xFF212121),
-                        child: Stack(
-                          children: [
-                            Column(
-                              children: [
-                                const SizedBox(height: 20,),
-                                Row(
-                                    children: [
-                                      const SizedBox(width: 25,),
-                                      CircleAvatar(
-                                        radius: 15,
-                                        backgroundColor: Colors.grey[400],
-                                        // Set the circle color to a shade of grey
-                                        child: const Icon(
-                                          Icons.person,
-                                          size: 15,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 20, height: 20,),
-                                      Text(post['author'],
-                                        style: const TextStyle(
-                                          color: Color(0xFFB3B3B3),),
-                                        textAlign: TextAlign.left,
-                                      ),
-                                    ]
-                                ),
-                                const SizedBox(height: 20),
-                                Row(
-                                  children: [
-                                    const SizedBox(height: 20, width: 20),
-                                    Text(post['title'] + '\n',
-                                      style: const TextStyle(
-                                        color: Color(0xFFB3B3B3),),
-                                    ),
-                                  ],
-                                ),
-                                Text(post['body'],
-                                  style: const TextStyle(color: Color(0xFFB3B3B3),),
-                                ),
-                                SizedBox(height: 30),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Container(
-                                      width: 110,
-                                      child: ElevatedButton(
-                                        onPressed: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(builder: (context) =>
-                                                ChatPage(
-                                                  otherUserPhone: post['personal id'],)),
-                                          );
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: const Color(0xFF1DB954),
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 10, horizontal: 20),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(5.0),
-                                          ),
-                                        ),
-                                        child: const Text(
-                                          'Message',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 20, width: 20),
-                              ],
-                            ),
-                            Positioned(
-                              top: 10,
-                              right: 10,
-                              child: GestureDetector(
-                                onTap: () {
-                                  _reportPost(post);
-                                },
-                                child: CircleAvatar(
-                                  radius: 15,
-                                  backgroundColor: Colors.red,
-                                  child: Icon(
-                                    Icons.flag,
-                                    color: Colors.white,
-                                    size: 20,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
+                    //post['key'] = snapshot.key;
+                    if(post['serviceType'].toString().toLowerCase() == buttonTitles[_tagSelection].toString().toLowerCase()){
+                      return PostList(Post: post);
+                    }
+                    else if (_tagSelection == 0) {
+                      return PostList(Post: post);
+                    }
+                    else {
+                      return Container();
+                    }
                   }
               ),
             ),
