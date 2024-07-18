@@ -1,8 +1,13 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'edit_profile_page.dart';  // Import the Edit Profile Page
 import 'all_listings_page.dart';  // Import the All Listings Page
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
+
+import 'globalstate.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -11,14 +16,51 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   int _selectedIndex = 3; // Index for 'Profile', assuming it's the fourth item
-  String name = 'John Doe'; // Placeholder name
-  String bio = 'This is a placeholder bio for John Doe.';
+  String name = ''; // Placeholder name
+  String bio = '';
   File? _profileImage;
 
   @override
   void initState() {
     super.initState();
+    getUserDataByPhone();
     _loadProfileImage();
+  }
+
+  Future<void> getUserDataByPhone() async {
+    final database = FirebaseDatabase.instance.ref();
+    final phone = Provider.of<UserState>(context, listen: false).phone;
+    try {
+      // Query the 'users' node for entries where 'phone' equals the provided phone number
+      final event = await database.child('users')
+          .orderByChild('phone')
+          .equalTo(phone)
+          .once();
+
+      final snapshot = event.snapshot;
+
+      if (snapshot.value != null) {
+        // Process the retrieved data
+        final Map<String, dynamic> userData = Map<String, dynamic>.from(snapshot.value as Map);
+          userData.forEach((key, value) {
+          final user = Map<String, dynamic>.from(value);
+          print('User found: $user');
+          // Access user details
+          setState(() {
+            name = user['name'];
+            bio = user['description'];
+          });
+          // Perform actions with the retrieved data
+          print('Name: $name');
+          print('Description: $bio');
+        });
+      } else {
+        print('No user found with the phone number: $phone');
+      }
+    } on FirebaseException catch (e) {
+      // Handle potential errors during data retrieval
+      print('Error retrieving data: $e');
+    }
   }
 
   void _loadProfileImage() async {
