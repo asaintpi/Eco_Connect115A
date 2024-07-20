@@ -1,5 +1,6 @@
 import 'package:eco_connect/Pages/MakePost/makepost.dart';
 import 'package:eco_connect/search_users.dart';
+import 'package:eco_connect/search_posts.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
@@ -31,6 +32,12 @@ class _AllListingsPageState extends State<AllListingsPage> {
     setState(() {
       _selectedIndex = index;
     });
+    if (_selectedIndex == 1) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => SearchPostsPage()),
+      );
+    }
     if (_selectedIndex == 3) { // Assuming 'Profile' is the fourth item
       Navigator.push(
         context,
@@ -343,6 +350,7 @@ class _AllListingsPageState extends State<AllListingsPage> {
   void _reportPost(Map post) {
     print('Reported post: ${post['key']}');
   }
+
 }
 
 void main() {
