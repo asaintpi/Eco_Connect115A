@@ -1,6 +1,5 @@
-import 'package:eco_connect/all_listings_page.dart';
-import 'package:eco_connect/chat.dart';
 import 'package:eco_connect/globalstate.dart';
+import 'package:eco_connect/main_navigation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -65,7 +64,7 @@ class _SecurityCodeScreenState extends State<SecurityCodeScreen> {
               Provider.of<UserState>(context, listen: false).setPhone(widget.phone);
               if(userExists){
                 print("User exists");
-                Navigator.push(context, MaterialPageRoute(builder: (context) => AllListingsPage()));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => MainNavigationPage()));
               }
               else {
                 //writeUserData(widget.phone);

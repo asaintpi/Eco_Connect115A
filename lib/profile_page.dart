@@ -3,7 +3,6 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'edit_profile_page.dart';  // Import the Edit Profile Page
-import 'all_listings_page.dart';  // Import the All Listings Page
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 
@@ -75,18 +74,6 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-    if (_selectedIndex == 0) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => AllListingsPage()),
-            (Route<dynamic> route) => false,
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -215,20 +202,6 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ],
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
-          BottomNavigationBarItem(icon: Icon(Icons.business_center), label: 'Jobs'),
-          BottomNavigationBarItem(icon: Icon(Icons.account_circle), label: 'Profile'),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: const Color(0xFF1DB954),
-        unselectedItemColor: Colors.white,
-        backgroundColor: Color(0xFF212121),
-        onTap: _onItemTapped,
-        type: BottomNavigationBarType.fixed,
       ),
     );
   }
