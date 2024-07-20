@@ -1,9 +1,9 @@
 import 'package:eco_connect/Pages/MakePost/makepost.dart';
+import 'package:eco_connect/post_listing.dart';
 import 'package:eco_connect/search_users.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
-import 'chat.dart';
 import 'globalstate.dart';
 import 'dm_page.dart';
 import 'package:provider/provider.dart';
@@ -16,14 +16,6 @@ class AllListingsPage extends StatefulWidget {
 class _AllListingsPageState extends State<AllListingsPage> {
   int _tagSelection = 0;
   bool _locationPermissionAsked = false; // State variable to track if the dialog has been shown
-
-
-  static const List<Widget> _widgetOptions = <Widget>[
-    Text('Home Page', style: TextStyle(fontSize: 35, color: Colors.white)),
-    Text('Search Page', style: TextStyle(fontSize: 35, color: Colors.white)),
-    Text('Jobs Page', style: TextStyle(fontSize: 35, color: Colors.white)),
-    Text('Profile Page', style: TextStyle(fontSize: 35, color: Colors.white)),
-  ];
 
 
 
@@ -85,110 +77,7 @@ class _AllListingsPageState extends State<AllListingsPage> {
       "News", "Events", "Lawn Care", "Garden", "Compost", "Carpool", "Other",
     ];
 
-    Widget PostList({required Map Post}) {
-      return  Container(
-        padding: const EdgeInsets.all(15),
-        child: Card(
-          color: Color(0xFF212121),
-          child: Stack(
-            children: [
-              Column(
-                children: [
-                  const SizedBox(height: 20,),
-                  Row(
-                      children: [
-                        const SizedBox(width: 25,),
-                        CircleAvatar(
-                          radius: 15,
-                          backgroundColor: Colors.grey[400],
-                          // Set the circle color to a shade of grey
-                          child: const Icon(
-                            Icons.person,
-                            size: 15,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(width: 20, height: 20,),
-                        Text(Post['author'],
-                          style: const TextStyle(
-                            color: Color(0xFFB3B3B3),),
-                          textAlign: TextAlign.left,
-                        ),
-                      ]
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    children: [
-                      const SizedBox(height: 20, width: 20),
-                      Text(Post['title'] + '\n',
-                        style: const TextStyle(
-                          color: Color(0xFFB3B3B3),),
-                      ),
-                    ],
-                  ),
-                  Text(Post['body'],
-                    style: const TextStyle(color: Color(0xFFB3B3B3),),
-                  ),
-                  SizedBox(height: 30),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 110,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) =>
-                                  ChatPage(
-                                    otherUserPhone: Post['personal id'],)),
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF1DB954),
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 10, horizontal: 20),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(5.0),
-                            ),
-                          ),
-                          child: const Text(
-                            'Message',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20, width: 20),
-                ],
-              ),
-              Positioned(
-                top: 10,
-                right: 10,
-                child: GestureDetector(
-                  onTap: () {
-                    _reportPost(Post);
-                  },
-                  child: CircleAvatar(
-                    radius: 15,
-                    backgroundColor: Colors.red,
-                    child: Icon(
-                      Icons.flag,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
+
     final database = FirebaseDatabase.instance.ref().child('posts');
 
     return Scaffold(
@@ -281,10 +170,10 @@ class _AllListingsPageState extends State<AllListingsPage> {
                       Animation<double> animation, int index) {
                     Map post = snapshot.value as Map;
                     if(post['serviceType'].toString().toLowerCase() == buttonTitles[_tagSelection].toString().toLowerCase()){
-                      return PostList(Post: post);
+                      return PostListing(post: post);
                     }
                     else if (_tagSelection == 0) {
-                      return PostList(Post: post);
+                      return PostListing(post: post);
                     }
                     else {
                       return Container();
@@ -308,9 +197,6 @@ class _AllListingsPageState extends State<AllListingsPage> {
     );
   }
 
-  void _reportPost(Map post) {
-    print('Reported post: ${post['key']}');
-  }
 
 }
 

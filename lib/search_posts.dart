@@ -1,8 +1,8 @@
+import 'package:eco_connect/post_listing.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 
-import 'chat.dart';
 
 class SearchPostsPage extends StatefulWidget {
   @override
@@ -14,112 +14,6 @@ class _SearchPostsPageState extends State<SearchPostsPage> {
   final _searchController = TextEditingController();
   final database = FirebaseDatabase.instance.ref('posts');
 
-
-
-  Widget PostItem ({required Map Post}){
-    return  Container(
-      padding: const EdgeInsets.all(15),
-      child: Card(
-        color: Color(0xFF212121),
-        child: Stack(
-          children: [
-            Column(
-              children: [
-                const SizedBox(height: 20,),
-                Row(
-                    children: [
-                      const SizedBox(width: 25,),
-                      CircleAvatar(
-                        radius: 15,
-                        backgroundColor: Colors.grey[400],
-                        // Set the circle color to a shade of grey
-                        child: const Icon(
-                          Icons.person,
-                          size: 15,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(width: 20, height: 20,),
-                      Text(Post['author'],
-                        style: const TextStyle(
-                          color: Color(0xFFB3B3B3),),
-                        textAlign: TextAlign.left,
-                      ),
-                    ]
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  children: [
-                    const SizedBox(height: 20, width: 20),
-                    Text(Post['title'] + '\n',
-                      style: const TextStyle(
-                        color: Color(0xFFB3B3B3),),
-                    ),
-                  ],
-                ),
-                Text(Post['body'],
-                  style: const TextStyle(color: Color(0xFFB3B3B3),),
-                ),
-                SizedBox(height: 30),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 110,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) =>
-                                ChatPage(
-                                  otherUserPhone: Post['personal id'],)),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF1DB954),
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 20),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5.0),
-                          ),
-                        ),
-                        child: const Text(
-                          'Message',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20, width: 20),
-              ],
-            ),
-            Positioned(
-              top: 10,
-              right: 10,
-              child: GestureDetector(
-                onTap: () {
-                  _reportPost(Post);
-                },
-                child: CircleAvatar(
-                  radius: 15,
-                  backgroundColor: Colors.red,
-                  child: Icon(
-                    Icons.flag,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -155,7 +49,7 @@ class _SearchPostsPageState extends State<SearchPostsPage> {
                           .contains(_searchController.text.toLowerCase().toString())
                   || author.toLowerCase()
                   .contains(_searchController.text.toLowerCase().toString())) {
-                    return PostItem(Post: Post);
+                    return PostListing(post: Post);
                   }
                   else {
                     return Container();
@@ -170,10 +64,6 @@ class _SearchPostsPageState extends State<SearchPostsPage> {
 
 
     );
-  }
-
-  void _reportPost(Map post) {
-    print('Reported post: ${post['key']}');
   }
 }
 
