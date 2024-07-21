@@ -1,9 +1,14 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+
+import '../../globalstate.dart';
 
 class MyMakePostPage extends StatefulWidget {
   const MyMakePostPage({Key? key}) : super(key: key);
@@ -31,6 +36,59 @@ class _MyMakePostPageState extends State<MyMakePostPage> {
   File? _image;
   Uint8List? _webImage;
   String? _imagePath;
+  String name = "";
+
+
+  void initState() {
+    super.initState();
+    fetchUserData();
+  }
+
+
+  void fetchUserData() async {
+    final String phoneNumber = Provider.of<UserState>(context, listen: false).phone;
+    final database = FirebaseDatabase.instance.ref();
+    final snapshot = await database.child('users').orderByChild('phone').equalTo(phoneNumber).get();
+    if (snapshot.exists) {
+      final userData = snapshot.value as Map<dynamic, dynamic>;
+      final userKey = userData.keys.first;
+      final user = userData[userKey];
+      setState(() {
+        name = user['name'] ?? 'No name';
+      });
+    } else {
+      setState(() {
+        name = 'No user found';
+      });
+    }
+  }
+
+
+
+  Future<void> writePost({required String author, required String title, required String body, required String service}) async {
+    // gets the UTC time and date at the moment of post
+    final now = DateTime.now();
+    //root database reference
+    //final String phoneNumber = Provider.of<UserState>(context, listen: false).phone;
+    final database = FirebaseDatabase.instance.ref();
+    final Map<String, dynamic> post = {
+      'author': author,
+      'personal id': Provider.of<UserState>(context, listen: false).phone,
+      'title' : title,
+      'body' : body,
+      'time' : now.toString(),
+      'serviceType' : service,
+    };
+    try {
+      // Push data to the 'posts' node with a unique key
+      await database.child('posts').push().set(post);
+      // Show success message or perform other actions (optional)
+      print('Phone number written successfully!');
+    } on FirebaseException catch (e) {
+      // Handle potential errors during data writing
+      print('Error writing data: $e');
+    }
+  }
 
   // Method to handle image selection
   Future<void> _pickImage() async {
@@ -183,12 +241,16 @@ class _MyMakePostPageState extends State<MyMakePostPage> {
                   onPressed: () {
                     if (_titleController.text.isNotEmpty &&
                         _bodyController.text.isNotEmpty) {
-                      print('Author: ${_titleController.text}');
-                      print('Body: ${_bodyController.text}');
-                      print('Service: $selectedService');
-                      if (_imagePath != null) {
-                        print('Image path: $_imagePath');
+                      writePost(
+                          author: name,
+                          title: _titleController.text,
+                          body: _bodyController.text,
+                          service: selectedService);
+                      Navigator.pop(context);
                       }
+                      else if (_imagePath != null) {
+                        print('Image path: $_imagePath');
+
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
@@ -221,6 +283,7 @@ class _MyMakePostPageState extends State<MyMakePostPage> {
       ),
     );
   }
+
 }
 
 void main() {
