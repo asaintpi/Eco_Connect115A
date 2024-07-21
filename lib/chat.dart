@@ -33,14 +33,6 @@ class _ChatPageState extends State<ChatPage> {
     // You can store the token in your database or send it to your server for future use.
   }
 
-  Future<void> requestNotificationPermission() async {
-    NotificationSettings settings = await FirebaseMessaging.instance.requestPermission();
-    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      print('User granted permission for notifications');
-    } else {
-      print('User declined permission for notifications');
-    }
-  }
 
   String _getChatId(String phone1, String phone2) {
     return phone1.compareTo(phone2) < 0 ? '${phone1}_$phone2' : '${phone2}_$phone1';
