@@ -3,6 +3,7 @@ import 'package:eco_connect/post_listing.dart';
 import 'package:eco_connect/search_users.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'globalstate.dart';
 import 'dm_page.dart';
@@ -32,7 +33,25 @@ class _AllListingsPageState extends State<AllListingsPage> {
         }
       }
     });
+    requestNotifPermission();
   }
+
+  void requestNotifPermission() async {
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+    NotificationSettings settings = await messaging.requestPermission(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      print('User granted permission');
+    } else if (settings.authorizationStatus == AuthorizationStatus.provisional) {
+      print('User granted provisional permission');
+    } else {
+      print('User declined or has not accepted permission');
+    }
+  }
+
 
   void _askLocationPermission() {
     setState(() {
