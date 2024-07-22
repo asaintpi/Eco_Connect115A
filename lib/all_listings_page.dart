@@ -168,12 +168,13 @@ class _AllListingsPageState extends State<AllListingsPage> {
                   query: database,
                   itemBuilder: (BuildContext context, DataSnapshot snapshot,
                       Animation<double> animation, int index) {
+                    String postKey = snapshot.key.toString();
                     Map post = snapshot.value as Map;
                     if(post['serviceType'].toString().toLowerCase() == buttonTitles[_tagSelection].toString().toLowerCase()){
-                      return PostListing(post: post);
+                      return PostListing(post: post, postKey: postKey,);
                     }
                     else if (_tagSelection == 0) {
-                      return PostListing(post: post);
+                      return PostListing(post: post, postKey: postKey,);
                     }
                     else {
                       return Container();
