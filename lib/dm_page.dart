@@ -1,20 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:provider/provider.dart';
 import 'chat.dart';
-
-class DirectMessage {
-  final String sender;
-  final String message;
-
-  DirectMessage({required this.sender, required this.message});
-}
+import 'globalstate.dart'; // Import your ChatPage widget
 
 class DMPage extends StatelessWidget {
-  final List<DirectMessage> dummyMessages = [
-    DirectMessage(sender: 'User A', message: 'Hello, how are you?'),
-    DirectMessage(sender: 'User B', message: 'Hi! I am doing well, thanks!'),
-    DirectMessage(sender: 'User C', message: 'Hey there! What are you up to?'),
-    // Add more dummy messages as needed
-  ];
+  final DatabaseReference databaseReference = FirebaseDatabase.instance.ref();
+  String currentUserPhone = ''; // replace with the current user's phone number
+
+  void setNumber(BuildContext context) {
+    currentUserPhone = Provider.of<UserState>(context, listen: false).phone;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,29 +24,71 @@ class DMPage extends StatelessWidget {
         ),
       ),
       backgroundColor: const Color(0xFF121212), // Dark grey background
-      body: ListView.builder(
-        itemCount: dummyMessages.length,
-        itemBuilder: (context, index) {
-          final message = dummyMessages[index];
+      body: StreamBuilder<DatabaseEvent>(
+        stream: databaseReference.child('chats').onValue,
+        builder: (BuildContext context, AsyncSnapshot<DatabaseEvent> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
 
-          return ListTile(
-            title: Text(
-              message.sender,
-              style: TextStyle(color: const Color(0xFFB3B3B3)), // Sender text color
-            ),
-            subtitle: Text(
-              message.message,
-              style: TextStyle(color: Colors.white), // Message text color
-            ),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ChatPage(otherUserPhone: message.sender),
-                ),
-              );
-            },
-          );
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+
+          if (!snapshot.hasData || snapshot.data!.snapshot.value == null) {
+            return Center(child: Text('No data available'));
+          }
+
+          final data = snapshot.data!.snapshot.value;
+
+          if (data is Map<Object?, Object?>) {
+            List<Map<String, dynamic>> messages = [];
+
+            final map = data;
+            map.forEach((key, value) {
+              if (value is Map<Object?, Object?>) {
+                final messageData = value['messages'];
+                if (messageData is Map<Object?, Object?>) {
+                  final messageMap = messageData;
+                  setNumber(context);
+                  messageMap.forEach((key, value) {
+                    if (value is Map<Object?, dynamic> &&
+                        value['receiver_phone'] == currentUserPhone) {
+                      messages.add(value.cast<String, dynamic>());
+                    }
+                  });
+                }
+              }
+            });
+
+            return ListView.builder(
+              itemCount: messages.length,
+              itemBuilder: (context, index) {
+                final message = messages[index];
+
+                return ListTile(
+                  title: Text(
+                    message['sender_phone'] ?? 'Unknown Sender',
+                    style: TextStyle(color: const Color(0xFFB3B3B3)), // Sender text color
+                  ),
+                  subtitle: Text(
+                    message['message'] ?? 'No message',
+                    style: TextStyle(color: Colors.white), // Message text color
+                  ),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ChatPage(otherUserPhone: message['sender_phone'] ?? 'Unknown Sender'),
+                      ),
+                    );
+                  },
+                );
+              },
+            );
+          } else {
+            return Center(child: Text('Data format is incorrect'));
+          }
         },
       ),
     );

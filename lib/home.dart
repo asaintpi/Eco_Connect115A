@@ -1,5 +1,6 @@
 import 'package:eco_connect/all_listings_page.dart';
 import 'package:eco_connect/globalstate.dart';
+import 'package:firebase_auth_platform_interface/firebase_auth_platform_interface.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -15,9 +16,32 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
+
 class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController _phoneController = TextEditingController();  // Controller for the phone number input
   bool emailsuccess = false;
+  late RecaptchaVerifier recaptchaVerifier;
+
+  @override
+  void initState() {
+    super.initState();
+    recaptchaVerifier = RecaptchaVerifier(
+      auth: FirebaseAuthPlatform.instance,
+      container: null,
+      size: RecaptchaVerifierSize.normal,
+      theme: RecaptchaVerifierTheme.light,
+      onSuccess: () {
+        print('reCAPTCHA completed successfully');
+      },
+      onError: (error) {
+        print('reCAPTCHA encountered an error: $error');
+      },
+      onExpired: () {
+        print('reCAPTCHA expired');
+      },
+    );
+  }
+
   Future<UserCredential> signInWithGoogle() async {
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
     final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
