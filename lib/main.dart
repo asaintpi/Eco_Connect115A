@@ -1,4 +1,4 @@
-
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'home.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +9,32 @@ import 'package:provider/provider.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+FlutterLocalNotificationsPlugin();
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  _showNotification(message);
+}
+
+void _showNotification(RemoteMessage message) {
+  flutterLocalNotificationsPlugin.show(
+    0,
+    message.notification?.title,
+    message.notification?.body,
+    NotificationDetails(
+      android: AndroidNotificationDetails(
+        'your_channel_id',
+        'your_channel_name',
+        channelDescription: 'your_channel_description',
+        importance: Importance.max,
+        priority: Priority.high,
+      ),
+      //iOS: IOSNotificationDetails(),
+    ),
+  );
+}
+
 void main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,6 +42,13 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  final InitializationSettings initializationSettings =
+  InitializationSettings(
+    android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+    //iOS: IOSInitializationSettings(),
+  );
+
+  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
   runApp(const MyApp());
 }
 
@@ -38,11 +71,6 @@ class MyApp extends StatelessWidget {
     );
   }
 
-}
-
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
-  // Handle background message
 }
 
 Future<void> requestLocationPermission() async {

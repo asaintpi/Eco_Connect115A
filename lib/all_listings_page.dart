@@ -10,6 +10,8 @@ import 'dm_page.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
+import 'notification.dart';
+
 class AllListingsPage extends StatefulWidget {
   @override
   _AllListingsPageState createState() => _AllListingsPageState();
@@ -19,6 +21,7 @@ class _AllListingsPageState extends State<AllListingsPage> {
   int _tagSelection = 0;
   bool _locationPermissionAsked = false; // State variable to track if the dialog has been shown
   final firebaseMessaging = FirebaseMessaging.instance;
+  final NotificationService _notificationService = NotificationService();
 
   @override
   void initState() {
@@ -34,6 +37,8 @@ class _AllListingsPageState extends State<AllListingsPage> {
       }
     });
     requestNotifPermission();
+    _notificationService.initialize();
+    _notificationService.listenForMessages(context);
   }
 
   void requestNotifPermission() async {
