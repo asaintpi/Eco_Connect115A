@@ -1,8 +1,12 @@
-import 'package:eco_connect/globalstate.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'all_listings_page.dart';  // Ensure the path is correct
+import 'edit_profile_page.dart';  // Import the Edit Profile Page
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+
+import 'globalstate.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -11,50 +15,65 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   int _selectedIndex = 3; // Index for 'Profile', assuming it's the fourth item
-  String name = '';
+  String name = ''; // Placeholder name
   String bio = '';
+  File? _profileImage;
 
   @override
   void initState() {
     super.initState();
-    fetchUserData();
+    getUserDataByPhone();
+    _loadProfileImage();
   }
 
-  void fetchUserData() async {
-    final String phoneNumber = Provider.of<UserState>(context, listen: false).phone;
-
+  Future<void> getUserDataByPhone() async {
     final database = FirebaseDatabase.instance.ref();
-    final snapshot = await database.child('users').orderByChild('phone').equalTo(phoneNumber).get();
+    final phone = Provider.of<UserState>(context, listen: false).phone;
+    try {
+      // Query the 'users' node for entries where 'phone' equals the provided phone number
+      final event = await database.child('users')
+          .orderByChild('phone')
+          .equalTo(phone)
+          .once();
 
-    if (snapshot.exists) {
-      final userData = snapshot.value as Map<dynamic, dynamic>;
-      final userKey = userData.keys.first;
-      final user = userData[userKey];
+      final snapshot = event.snapshot;
 
+      if (snapshot.value != null) {
+        // Process the retrieved data
+        final Map<String, dynamic> userData = Map<String, dynamic>.from(snapshot.value as Map);
+          userData.forEach((key, value) {
+          final user = Map<String, dynamic>.from(value);
+          print('User found: $user');
+          // Access user details
+          setState(() {
+            name = user['name'];
+            bio = user['description'];
+          });
+          // Perform actions with the retrieved data
+          print('Name: $name');
+          print('Description: $bio');
+        });
+      } else {
+        print('No user found with the phone number: $phone');
+      }
+    } on FirebaseException catch (e) {
+      // Handle potential errors during data retrieval
+      print('Error retrieving data: $e');
+    }
+  }
+
+  void _loadProfileImage() async {
+    final directory = await getApplicationDocumentsDirectory();
+    final path = directory.path;
+    final file = File('$path/profile_image.png');
+
+    if (file.existsSync()) {
       setState(() {
-        name = user['name'] ?? 'No name';
-        bio = user['description'] ?? '';
-      });
-    } else {
-      setState(() {
-        name = 'No user found';
-        bio = '';
+        _profileImage = file;
       });
     }
   }
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-    if (_selectedIndex == 0) {  // Assuming 'Home' is the first item
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => AllListingsPage()),
-      );
-    }
-    // Add navigation logic here if needed, e.g., using Navigator to switch pages
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,14 +87,17 @@ class _ProfilePageState extends State<ProfilePage> {
             CircleAvatar(
               radius: 50,
               backgroundColor: Colors.grey[400], // Set the circle color to a shade of grey
-              child: const Icon(
+              backgroundImage: _profileImage != null ? FileImage(_profileImage!) : null,
+              child: _profileImage == null
+                  ? const Icon(
                 Icons.person,
                 size: 50,
                 color: Colors.white,
-              ),
+              )
+                  : null,
             ),
             const SizedBox(height: 20), // Space between profile picture and name
-             Text(
+            Text(
               name, // Display the placeholder name
               style: TextStyle(
                 color: Colors.white, // Set text color to white
@@ -90,7 +112,7 @@ class _ProfilePageState extends State<ProfilePage> {
               endIndent: 50, // Adjust the end indent as well
             ),
             const SizedBox(height: 10), // Space between the divider and location
-             Text(
+            Text(
               'Santa Cruz, CA', // Display the placeholder location
               style: TextStyle(
                 color: Colors.grey[500], // Set the text color to a lighter grey
@@ -161,7 +183,10 @@ class _ProfilePageState extends State<ProfilePage> {
               height: 50,
               child: ElevatedButton(
                 onPressed: () {
-                  // Add action for this button
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => EditProfilePage()),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF1DB954), // Custom green color
@@ -178,30 +203,14 @@ class _ProfilePageState extends State<ProfilePage> {
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
-          BottomNavigationBarItem(icon: Icon(Icons.business_center), label: 'Jobs'),
-          BottomNavigationBarItem(icon: Icon(Icons.account_circle), label: 'Profile'),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: const Color(0xFF1DB954),
-        unselectedItemColor: Colors.white,
-        backgroundColor: Color(0xFF212121),
-        onTap: _onItemTapped,
-        type: BottomNavigationBarType.fixed,
-      ),
     );
   }
 }
 
-
-
 void main() {
   runApp(MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: ProfilePage(),
+    debugShowCheckedModeBanner: false,
+    home: ProfilePage(),
     theme: ThemeData(
       primarySwatch: Colors.blue,
       visualDensity: VisualDensity.adaptivePlatformDensity,

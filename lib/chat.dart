@@ -1,7 +1,11 @@
+import 'dart:convert';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:http/http.dart' as http;
 import 'package:eco_connect/globalstate.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:provider/provider.dart';
 
 class ChatPage extends StatefulWidget {
@@ -17,15 +21,21 @@ class _ChatPageState extends State<ChatPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final DatabaseReference _database = FirebaseDatabase.instance.reference();
   User? _user;
+  String? fcmToken;
   TextEditingController _messageController = TextEditingController();
   List<Map<String, dynamic>> _messages = [];
   String senderNumber = '';
 
-  @override
-  void initState() {
-    super.initState();
-    senderNumber = Provider.of<UserState>(context, listen: false).phone;
-    _loadMessages();
+  Future<void> _getFcmToken() async {
+    fcmToken = await FirebaseMessaging.instance.getToken();
+    print('FCM Token: $fcmToken');
+
+    // You can store the token in your database or send it to your server for future use.
+  }
+
+
+  String _getChatId(String phone1, String phone2) {
+    return phone1.compareTo(phone2) < 0 ? '${phone1}_$phone2' : '${phone2}_$phone1';
   }
 
   void _loadMessages() {
@@ -47,8 +57,12 @@ class _ChatPageState extends State<ChatPage> {
     });
   }
 
-  String _getChatId(String phone1, String phone2) {
-    return phone1.compareTo(phone2) < 0 ? '${phone1}_$phone2' : '${phone2}_$phone1';
+  @override
+  void initState() {
+    super.initState();
+    senderNumber = Provider.of<UserState>(context, listen: false).phone;
+    //_setupFCM();
+    _loadMessages();
   }
 
   void _sendMessage() {
@@ -63,6 +77,7 @@ class _ChatPageState extends State<ChatPage> {
         'timestamp': DateTime.now().millisecondsSinceEpoch,
       }).then((_) {
         print('Message sent');
+        //_sendNotification(widget.otherUserPhone, _messageController.text);
       }).catchError((error) {
         print('Error sending message: $error');
       });
@@ -70,47 +85,118 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
+  Future<void> _sendFCMMessage(String token, String message) async {
+    final serverKey = 'YOUR_SERVER_KEY';
+    final url = 'https://fcm.googleapis.com/fcm/send';
+
+    await http.post(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'key=$serverKey',
+      },
+      body: jsonEncode({
+        'notification': {
+          'title': 'New Message',
+          'body': message,
+        },
+        'priority': 'high',
+        'to': token,
+      }),
+    );
+  }
+
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Chat with ${widget.otherUserPhone}'),
+        backgroundColor: const Color(0xFF212121), // Updated AppBar color
+        iconTheme: IconThemeData(color: const Color(0xFFB3B3B3)), // Set back arrow color
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Expanded(
+              child: Center(
+                child: Text(
+                  'Chat with ${widget.otherUserPhone}',
+                  style: TextStyle(color: const Color(0xFFB3B3B3)), // Set text color
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
+      backgroundColor: const Color(0xFF121212), // Dark grey background
+
       body: Column(
         children: [
           Expanded(
             child: ListView.builder(
               itemCount: _messages.length,
               itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(_messages[index]['message']),
-                  subtitle: Text(_messages[index]['sender_phone'] == senderNumber ? 'You' : widget.otherUserPhone),
+                final message = _messages[index];
+                final isMe = message['sender_phone'] == senderNumber;
+                return Align(
+                  alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: isMe ? const Color(0xFF1DB954) : Colors.grey[800],
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    padding: const EdgeInsets.all(10),
+                    margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                    child: Text(
+                      message['message'],
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
                 );
               },
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _messageController,
-                    decoration: InputDecoration(
-                      labelText: 'Type a message',
+            child: Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFF212121),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _messageController,
+                      style: const TextStyle(color: Color(0xFFD9D9D9)), // Text color
+                      decoration: InputDecoration(
+                        hintText: 'Type a message',
+                        hintStyle: TextStyle(color: Colors.grey), // Hint text color
+                        border: InputBorder.none,
+                      ),
+                      onSubmitted: (value) => _sendMessage(),
                     ),
-                    onSubmitted: (value) => _sendMessage(),
                   ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.send),
-                  onPressed: _sendMessage,
-                ),
-              ],
+                  const SizedBox(width: 8),
+                  IconButton(
+                    icon: const Icon(Icons.send),
+                    color: const Color(0xFF1DB954), // Send button color
+                    onPressed: _sendMessage,
+                  ),
+                ],
+              ),
             ),
           ),
         ],
       ),
     );
   }
+}
+
+void main() {
+  runApp(MaterialApp(home: ChatPage(otherUserPhone: '123-456-7890')));
 }

@@ -1,6 +1,7 @@
 import 'package:eco_connect/all_listings_page.dart';
 import 'package:eco_connect/globalstate.dart';
 import 'package:eco_connect/security_code_screen.dart';
+import 'package:eco_connect/set_name_pfp.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
@@ -19,7 +20,7 @@ class _SetupEmailPasswordPageState extends State<SetupEmailPasswordPage> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
-
+  String email = '';
   Future<void> verifyPhoneNumber(String phone) async {
     final FirebaseAuth auth = FirebaseAuth.instance; // Create an instance of FirebaseAuth
 
@@ -61,13 +62,33 @@ class _SetupEmailPasswordPageState extends State<SetupEmailPasswordPage> {
   }
 
   Future<void> _registerWithEmailPassword() async {
+    String email = _emailController.text;
+    String password = _passwordController.text;
+
+    // Validate password length
+    if (password.length < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Password must be at least 6 characters long.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
     try {
       UserCredential userCredential = await _auth
           .createUserWithEmailAndPassword(
         email: _emailController.text,
         password: _passwordController.text,
       );
+      email = _emailController.text;
       print('Email/Password Registration successful: ${userCredential.user}');
+      if (FirebaseAuth.instance.currentUser != null) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => SetNameAndPfpPage(phone: widget.phone, email: email)),
+        );
+      }
       // Navigate to another page or show success message
 
     } catch (e) {
@@ -83,7 +104,7 @@ class _SetupEmailPasswordPageState extends State<SetupEmailPasswordPage> {
 
 
 
-    @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -111,15 +132,10 @@ class _SetupEmailPasswordPageState extends State<SetupEmailPasswordPage> {
 
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () async {
-      await _registerWithEmailPassword();
-      if (FirebaseAuth.instance.currentUser != null) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => AllListingsPage()),
-        );
-      }
-      },
+                onPressed: () async {
+                  await _registerWithEmailPassword();
+
+                },
                 child: Text('Register')
 
             ),

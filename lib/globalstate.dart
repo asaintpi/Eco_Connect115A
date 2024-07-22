@@ -10,3 +10,16 @@ class UserState with ChangeNotifier {
     notifyListeners();
   }
 }
+
+class LocationProvider extends ChangeNotifier {
+  bool _locationOn = false;
+
+  bool get locationOn => this._locationOn;
+
+  void changeLocationPermission (bool perm,) async {
+    _locationOn = perm;
+    notifyListeners();
+
+  }
+}
+

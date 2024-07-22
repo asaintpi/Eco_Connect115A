@@ -1,5 +1,4 @@
 import 'home.dart';
-import 'routegenerator.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'firebase_options.dart'; // Import the generated file
@@ -24,8 +23,7 @@ class MyApp extends StatelessWidget {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Firebase Realtime Database Demo',
-      initialRoute: '/',
-      onGenerateRoute: RouteGenerator.generateRoute,
+      home: MyHomePage(),
 
     );
   }
