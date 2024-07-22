@@ -8,6 +8,9 @@ import 'package:flutter/material.dart';
 import 'globalstate.dart';
 import 'dm_page.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
+import 'notification.dart';
 
 class AllListingsPage extends StatefulWidget {
   @override
@@ -17,8 +20,8 @@ class AllListingsPage extends StatefulWidget {
 class _AllListingsPageState extends State<AllListingsPage> {
   int _tagSelection = 0;
   bool _locationPermissionAsked = false; // State variable to track if the dialog has been shown
-
-
+  final firebaseMessaging = FirebaseMessaging.instance;
+  final NotificationService _notificationService = NotificationService();
 
   @override
   void initState() {
@@ -34,6 +37,8 @@ class _AllListingsPageState extends State<AllListingsPage> {
       }
     });
     requestNotifPermission();
+    _notificationService.initialize();
+    _notificationService.listenForMessages(context);
   }
 
   void requestNotifPermission() async {
@@ -86,6 +91,7 @@ class _AllListingsPageState extends State<AllListingsPage> {
       },
     );
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -187,12 +193,13 @@ class _AllListingsPageState extends State<AllListingsPage> {
                   query: database,
                   itemBuilder: (BuildContext context, DataSnapshot snapshot,
                       Animation<double> animation, int index) {
+                    String postKey = snapshot.key.toString();
                     Map post = snapshot.value as Map;
                     if(post['serviceType'].toString().toLowerCase() == buttonTitles[_tagSelection].toString().toLowerCase()){
-                      return PostListing(post: post);
+                      return PostListing(post: post, postKey: postKey,);
                     }
                     else if (_tagSelection == 0) {
-                      return PostListing(post: post);
+                      return PostListing(post: post, postKey: postKey,);
                     }
                     else {
                       return Container();
@@ -205,6 +212,7 @@ class _AllListingsPageState extends State<AllListingsPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
+          showNotification('title', 'body');
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => DMPage()),
@@ -218,7 +226,42 @@ class _AllListingsPageState extends State<AllListingsPage> {
 
 
 }
+final notificationsPlugin = FlutterLocalNotificationsPlugin();
+final databaseReference = FirebaseDatabase.instance.reference();
+void setupNotifications() {
+  final settings = InitializationSettings(
+    android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+  );
+  notificationsPlugin.initialize(settings);
+}
+void showNotification(String title, String body) async {
+  final details = NotificationDetails(
+    android: AndroidNotificationDetails(
+      'channelId',
+      'channelName',
+      channelDescription: 'channelDescription',
+    ),
+  );
+  await notificationsPlugin.show(0, title, body, details);
+}
+void setupDatabaseListener() {
+  /*databaseReference.child('messages').onChildAdded.listen((event) {
+    // Ensure that event.snapshot.value is of type Map<String, dynamic>
+    final message = event.snapshot.value as Map<String, dynamic>?;
 
+    if (message != null) {
+      final title = message['title'] as String?;
+      final body = message['body'] as String?;
+
+      if (title != null && body != null) {
+        showNotification(title, body);
+      }
+    }
+  });
+  */
+}
 void main() {
+  setupNotifications();
+  setupDatabaseListener();
   runApp(MaterialApp(home: AllListingsPage()));
 }

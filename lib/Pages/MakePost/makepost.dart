@@ -83,7 +83,7 @@ class _MyMakePostPageState extends State<MyMakePostPage> {
       // Push data to the 'posts' node with a unique key
       await database.child('posts').push().set(post);
       // Show success message or perform other actions (optional)
-      print('Phone number written successfully!');
+      print('Post written successfully!');
     } on FirebaseException catch (e) {
       // Handle potential errors during data writing
       print('Error writing data: $e');
@@ -93,7 +93,7 @@ class _MyMakePostPageState extends State<MyMakePostPage> {
   // Method to handle image selection
   Future<void> _pickImage() async {
     try {
-      final pickedFile = await ImagePicker().getImage(source: ImageSource.gallery);
+      final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
       if (pickedFile != null) {
         if (kIsWeb) {
           final bytes = await pickedFile.readAsBytes();

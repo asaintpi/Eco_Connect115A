@@ -1,4 +1,5 @@
 import 'package:eco_connect/all_listings_page.dart';
+import 'package:eco_connect/blank.dart';
 import 'package:eco_connect/profile_page.dart';
 import 'notification.dart';
 import 'package:eco_connect/search_posts.dart';
@@ -11,7 +12,7 @@ class MainNavigationPage extends StatefulWidget {
 }
 
 class _MainNavigationPageState extends State<MainNavigationPage> {
-  final List<Widget> pages = [AllListingsPage(), SearchPostsPage(), NotificationPage(), ProfilePage()];
+  final List<Widget> pages = [AllListingsPage(), SearchPostsPage(), BlankPage(), ProfilePage()];
   int _selectedIndex = 0;
 
   void _onItemTapped(int index) {

@@ -197,6 +197,6 @@ class _ChatPageState extends State<ChatPage> {
   }
 }
 
-void main() {
-  runApp(MaterialApp(home: ChatPage(otherUserPhone: '123-456-7890')));
-}
+//void main() {
+//  runApp(MaterialApp(home: ChatPage(otherUserPhone: '123-456-7890')));
+//}

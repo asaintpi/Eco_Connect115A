@@ -39,6 +39,7 @@ class _SearchPostsPageState extends State<SearchPostsPage> {
                 query: database,
                 itemBuilder: (BuildContext context, DataSnapshot snapshot,
                     Animation<double> animation, int index) {
+                  String postKey = snapshot.key.toString();
                   Map Post = snapshot.value as Map;
                   String title = Post['title'].toString();
                   String body = Post['body'].toString();
@@ -49,7 +50,7 @@ class _SearchPostsPageState extends State<SearchPostsPage> {
                           .contains(_searchController.text.toLowerCase().toString())
                   || author.toLowerCase()
                   .contains(_searchController.text.toLowerCase().toString())) {
-                    return PostListing(post: Post);
+                    return PostListing(post: Post, postKey: postKey,);
                   }
                   else {
                     return Container();

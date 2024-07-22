@@ -39,6 +39,8 @@ dependencies:
   firebase_auth:
   firebase_storage:
   firebase_messaging:
+  firebase_auth_platform_interface:
+  flutter_local_notifications:
   geolocator: ^10.1.0
 
 
