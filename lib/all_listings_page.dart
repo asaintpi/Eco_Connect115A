@@ -7,6 +7,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'globalstate.dart';
 import 'dm_page.dart';
+import 'map_screen.dart'; // Import your map screen here
 import 'package:provider/provider.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
@@ -57,7 +58,6 @@ class _AllListingsPageState extends State<AllListingsPage> {
     }
   }
 
-
   void _askLocationPermission() {
     setState(() {
       _locationPermissionAsked = true; // Mark as asked
@@ -92,16 +92,13 @@ class _AllListingsPageState extends State<AllListingsPage> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
-
     const buttonTitles = [
       "Add to a Service", "Members", "Babysitting",
       "Housecleaning", "Borrow", "Playdates",
       "News", "Events", "Lawn Care", "Garden", "Compost", "Carpool", "Other",
     ];
-
 
     final database = FirebaseDatabase.instance.ref().child('posts');
 
@@ -148,11 +145,11 @@ class _AllListingsPageState extends State<AllListingsPage> {
                               context,
                               MaterialPageRoute(builder: (context) =>
                                   SearchUsersPage(),
-                            )
+                              ),
                             );
                           }
                           print("${buttonTitles[index]} button pressed");
-                          if(_tagSelection == index) {//unselect category to show all
+                          if (_tagSelection == index) {//unselect category to show all
                             setState(() {
                               _tagSelection = 0;
                             });
@@ -166,8 +163,8 @@ class _AllListingsPageState extends State<AllListingsPage> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: index == 0
                               ? Color(0xFF212121)
-                          : _tagSelection == index
-                            ? Color(0xFF212121)
+                              : _tagSelection == index
+                              ? Color(0xFF212121)
                               : const Color(0xFF1DB954), // Conditional color
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(
@@ -188,6 +185,25 @@ class _AllListingsPageState extends State<AllListingsPage> {
                 ),
               ),
             ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => MapScreen()),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFF1DB954), // Green color for the button
+                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5.0), // More rectangular, less rounded
+                ),
+              ),
+              child: const Text(
+                'Go to Map',
+                style: TextStyle(fontSize: 18, color: Colors.white),
+              ),
+            ),
             Expanded(
               child: FirebaseAnimatedList(
                   query: database,
@@ -195,7 +211,7 @@ class _AllListingsPageState extends State<AllListingsPage> {
                       Animation<double> animation, int index) {
                     String postKey = snapshot.key.toString();
                     Map post = snapshot.value as Map;
-                    if(post['serviceType'].toString().toLowerCase() == buttonTitles[_tagSelection].toString().toLowerCase()){
+                    if (post['serviceType'].toString().toLowerCase() == buttonTitles[_tagSelection].toString().toLowerCase()) {
                       return PostListing(post: post, postKey: postKey,);
                     }
                     else if (_tagSelection == 0) {
@@ -208,7 +224,7 @@ class _AllListingsPageState extends State<AllListingsPage> {
               ),
             ),
           ],
-        )
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -223,9 +239,8 @@ class _AllListingsPageState extends State<AllListingsPage> {
       ),
     );
   }
-
-
 }
+
 final notificationsPlugin = FlutterLocalNotificationsPlugin();
 final databaseReference = FirebaseDatabase.instance.reference();
 void setupNotifications() {

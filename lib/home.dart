@@ -9,6 +9,7 @@ import 'notification.dart';
 import 'security_code_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:eco_connect/map_screen.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -16,7 +17,6 @@ class MyHomePage extends StatefulWidget {
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
-
 
 class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController _phoneController = TextEditingController();  // Controller for the phone number input
@@ -82,7 +82,6 @@ class _MyHomePageState extends State<MyHomePage> {
         final TextEditingController _emailController = TextEditingController();
         final TextEditingController _passwordController = TextEditingController();
 
-
         return AlertDialog(
           title: Text('Sign In with Email/Password'),
           content: Column(
@@ -110,12 +109,13 @@ class _MyHomePageState extends State<MyHomePage> {
                 String email = _emailController.text;
                 String password = _passwordController.text;
                 await _signInWithEmailAndPassword(email, password);
-                //print(emailsuccess);
                 Navigator.of(context).pop();
-                if(emailsuccess) {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => AllListingsPage()));
+                if (emailsuccess) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => AllListingsPage()),
+                  );
                 }
-
               },
               child: Text('Sign In'),
             ),
@@ -129,17 +129,6 @@ class _MyHomePageState extends State<MyHomePage> {
     try {
       UserCredential userCredential = await signInWithGoogle();
       print('Google Sign-In successful: ${userCredential.user}');
-      /*Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => SecurityCodeScreen(
-            verificationId: verificationId,
-            phone: phone,
-          ),
-        ),
-      );
-
-       */
       // You can now navigate to another screen or perform other actions
     } catch (e) {
       print('Google Sign-In failed: $e');
@@ -187,8 +176,6 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -229,17 +216,17 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             SizedBox(height: 20),
             Container(
-                width: 640,
-                child: TextField(
-                  controller: _phoneController,
-                  decoration: InputDecoration(
-                    hintText: 'Enter your phone number',  // Display as a hint, not as a floating label
-                    border: OutlineInputBorder(),
-                    fillColor: Colors.white,
-                    filled: true,
-                  ),
-                  keyboardType: TextInputType.phone,
-                )
+              width: 640,
+              child: TextField(
+                controller: _phoneController,
+                decoration: InputDecoration(
+                  hintText: 'Enter your phone number',  // Display as a hint, not as a floating label
+                  border: OutlineInputBorder(),
+                  fillColor: Colors.white,
+                  filled: true,
+                ),
+                keyboardType: TextInputType.phone,
+              ),
             ),
             const SizedBox(height: 10),
             const Text(
@@ -248,7 +235,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 color: Color(0xFFB3B3B3),
               ),
             ),
-
             SizedBox(
               width: 640,
               height: 50,
@@ -271,7 +257,6 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                     );
                   }
-
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color(0xFF1DB954), // Green color for the button
@@ -280,9 +265,6 @@ class _MyHomePageState extends State<MyHomePage> {
                     borderRadius: BorderRadius.circular(5.0), // More rectangular, less rounded
                   ),
                 ),
-
-
-
                 child: const Text(
                   'Continue',
                   style: TextStyle(fontSize: 18, color: Colors.white),
@@ -290,17 +272,17 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             const SizedBox(height: 20),
-
-            // backgroundColor: Color(0xFF1DB954),
-            // padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-            // shape: RoundedRectangleBorder(
-            // borderRadius: BorderRadius.circular(5.0),
-            const SizedBox(height: 20),
             SizedBox(
               width: 640,
               height: 50,
               child: ElevatedButton(
-                onPressed: _showEmailPasswordSignInDialog,
+                onPressed: () async {
+                  await _signInWithGoogle();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => AllListingsPage()),
+                  );
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color(0xFF1DB954), // Green color for the button
                   padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
@@ -309,11 +291,28 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
                 child: const Text(
-                  'Sign In with Email/Password',
+                  'Sign In with Google',
                   style: TextStyle(fontSize: 18, color: Colors.white),
                 ),
               ),
             ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _showEmailPasswordSignInDialog,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFF1DB954), // Green color for the button
+                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5.0), // More rectangular, less rounded
+                ),
+              ),
+              child: const Text(
+                'Sign In with Email/Password',
+                style: TextStyle(fontSize: 18, color: Colors.white),
+              ),
+            ),
+
+
           ],
         ),
       ),

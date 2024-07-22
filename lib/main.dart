@@ -8,6 +8,10 @@ import 'package:eco_connect/globalstate.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter/material.dart';
+import 'map_page.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
 FlutterLocalNotificationsPlugin();
@@ -30,22 +34,18 @@ void _showNotification(RemoteMessage message) {
         importance: Importance.max,
         priority: Priority.high,
       ),
-      //iOS: IOSNotificationDetails(),
     ),
   );
 }
 
 void main() async {
-
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  final InitializationSettings initializationSettings =
-  InitializationSettings(
+  final InitializationSettings initializationSettings = InitializationSettings(
     android: AndroidInitializationSettings('@mipmap/ic_launcher'),
-    //iOS: IOSInitializationSettings(),
   );
 
   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
@@ -58,10 +58,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(providers: [
-        ChangeNotifierProvider(
-        create: (context) => UserState()),
-        ChangeNotifierProvider(
-        create: (context) => LocationProvider()),
+      ChangeNotifierProvider(
+          create: (context) => UserState()),
+      ChangeNotifierProvider(
+          create: (context) => LocationProvider()),
     ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -70,7 +70,6 @@ class MyApp extends StatelessWidget {
       ),
     );
   }
-
 }
 
 Future<void> requestLocationPermission() async {
