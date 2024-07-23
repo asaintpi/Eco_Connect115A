@@ -3,25 +3,13 @@ import 'package:eco_connect/globalstate.dart';
 import 'package:eco_connect/main_navigation.dart';
 import 'package:eco_connect/set_name_pfp.dart';
 import 'package:firebase_auth_platform_interface/firebase_auth_platform_interface.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_auth_platform_interface/firebase_auth_platform_interface.dart';
-import 'package:eco_connect/globalstate.dart';
-import 'package:eco_connect/all_listings_page.dart';
-import 'package:eco_connect/main_navigation.dart';
-import 'package:eco_connect/set_name_pfp.dart';
-import 'notification.dart';
 import 'security_code_screen.dart';
-import 'package:eco_connect/map_screen.dart';
-//import 'package:google_sign_in/google_sign_in_web.dart' as gsi_web;
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -45,13 +33,13 @@ class _MyHomePageState extends State<MyHomePage> {
       size: RecaptchaVerifierSize.normal,
       theme: RecaptchaVerifierTheme.light,
       onSuccess: () {
-        print('reCAPTCHA completed successfully');
+        print('reCAPTCHA completed successfully at ${DateTime.now()}');
       },
       onError: (error) {
-        print('reCAPTCHA encountered an error: $error');
+        print('reCAPTCHA encountered an error at ${DateTime.now()}: $error');
       },
       onExpired: () {
-        print('reCAPTCHA expired');
+        print('reCAPTCHA expired at ${DateTime.now()}');
       },
     );
   }
@@ -155,12 +143,13 @@ class _MyHomePageState extends State<MyHomePage> {
         print('Google Sign-In successful: ${user.uid}');
         print('User email: $email');
 
-        Navigator.push(
+        /*Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => AllListingsPage(),
           ),
         );
+         */
       }
     } catch (e) {
       print('Error during Google Sign-In: $e');
@@ -200,7 +189,7 @@ class _MyHomePageState extends State<MyHomePage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => SetNameAndPfpPage(phone: '1111111111', email: email!),
+              builder: (context) => SetNameAndPfpPage(phone: '1111111111', email: email),
             ),
           );
           // Handle new user logic, such as displaying a welcome message
@@ -224,7 +213,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
   Future<void> verifyPhoneNumber(String phone) async {
-    final FirebaseAuth auth = FirebaseAuth.instance; // Create an instance of FirebaseAuth
+    /*final FirebaseAuth auth = FirebaseAuth.instance; // Create an instance of FirebaseAuth
 
     try {
       await auth.verifyPhoneNumber(
@@ -262,6 +251,45 @@ class _MyHomePageState extends State<MyHomePage> {
       );
     } catch (e) {
       print('Failed to start phone verification: $e');
+    }
+
+     */
+    final FirebaseAuth auth = FirebaseAuth.instance;
+
+    try {
+      print('Starting reCAPTCHA verification at ${DateTime.now()}');
+      String recaptchaToken = await recaptchaVerifier.verify();
+      print('reCAPTCHA token received at ${DateTime.now()}: $recaptchaToken');
+
+      await auth.verifyPhoneNumber(
+        phoneNumber: phone,
+        verificationCompleted: (PhoneAuthCredential credential) async {
+          await auth.signInWithCredential(credential);
+          print('Verification completed automatically at ${DateTime.now()}');
+          Provider.of<UserState>(context, listen: false).setPhone(phone);
+          Provider.of<UserState>(context, listen: false).setSignInTime(DateTime.now());
+        },
+        verificationFailed: (FirebaseAuthException e) {
+          print('Verification failed at ${DateTime.now()}: ${e.message}');
+        },
+        codeSent: (String verificationId, int? resendToken) {
+          print('Verification code sent at ${DateTime.now()}: $verificationId');
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => SecurityCodeScreen(
+                verificationId: verificationId,
+                phone: phone,
+              ),
+            ),
+          );
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {
+          print('Verification timeout at ${DateTime.now()}: $verificationId');
+        },
+      );
+    } catch (e) {
+      print('Failed to start phone verification at ${DateTime.now()}: $e');
     }
   }
 

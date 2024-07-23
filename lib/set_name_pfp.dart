@@ -26,6 +26,7 @@ class _SetNameAndPfpPageState extends State<SetNameAndPfpPage> {
   Uint8List? _webImage;
   String? _extension;
 
+
   Future<void> _pickImage() async {
     try {
       final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
@@ -79,15 +80,23 @@ class _SetNameAndPfpPageState extends State<SetNameAndPfpPage> {
       }
 
       final storageRef = FirebaseStorage.instance.ref().child('images/${DateTime.now().millisecondsSinceEpoch}$_extension');
+      UploadTask uploadTask;
+
       if (kIsWeb) {
-        final uploadTask = storageRef.putData(_webImage!);
-        await uploadTask.whenComplete(() => print('Image uploaded successfully'));
+        uploadTask = storageRef.putData(_webImage!);
       } else {
-        final uploadTask = storageRef.putFile(_image!);
-        await uploadTask.whenComplete(() => print('Image uploaded successfully'));
+        uploadTask = storageRef.putFile(_image!);
       }
 
+      await uploadTask.whenComplete(() => print('Image uploaded successfully'));
+
       final downloadUrl = await storageRef.getDownloadURL();
+
+      // Save the image URL in Firebase Realtime Database
+      final databaseRef = FirebaseDatabase.instance.ref().child('imageUrls');
+      final imageRef = databaseRef.push(); // Create a new unique reference
+      await imageRef.set({'url': downloadUrl});
+
     } catch (e) {
       print('Error uploading image: $e');
     }
@@ -172,11 +181,12 @@ class _SetNameAndPfpPageState extends State<SetNameAndPfpPage> {
                     if (name.isNotEmpty) {
                       uploadImageToFirebase();
                       writeUserData(widget.phone, widget.email, name, description).then((_) {
-                        Navigator.pushReplacement(
+                        /*Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
                               builder: (context) => MainNavigationPage()),
                         );
+                         */
                       }).catchError((error) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
