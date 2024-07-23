@@ -1,17 +1,16 @@
-import 'package:flutter/material.dart';
+import 'package:eco_connect/Pages/MakePost/makepost.dart';
+import 'package:eco_connect/post_listing.dart';
+import 'package:eco_connect/search_users.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:provider/provider.dart';
-
-import 'dm_page.dart';
+import 'package:flutter/material.dart';
 import 'globalstate.dart';
+import 'dm_page.dart';
 import 'map_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'notification.dart';
-import 'post_listing.dart';
-import 'search_users.dart';
-import 'package:eco_connect/Pages/MakePost/makepost.dart';
 
 class AllListingsPage extends StatefulWidget {
   @override
@@ -19,27 +18,32 @@ class AllListingsPage extends StatefulWidget {
 }
 
 class _AllListingsPageState extends State<AllListingsPage> {
-  final databaseReference = FirebaseDatabase.instance.reference().child('posts');
-  final notificationsPlugin = FlutterLocalNotificationsPlugin();
+  int _tagSelection = 0;
+  bool _locationPermissionAsked = false; // State variable to track if the dialog has been shown
   final firebaseMessaging = FirebaseMessaging.instance;
   final NotificationService _notificationService = NotificationService();
-
-  int _tagSelection = 0; // selected tag
-  bool _locationPermissionAsked = false;
 
   @override
   void initState() {
     super.initState();
+    bool locationPerm = Provider
+        .of<LocationProvider>(context, listen: false)
+        .locationOn;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _handleLocationPermission();
+      if (!_locationPermissionAsked) {
+        if (locationPerm == false) {
+          _askLocationPermission();
+        }
+      }
     });
-    _requestNotifPermission();
+    requestNotifPermission();
     _notificationService.initialize();
     _notificationService.listenForMessages(context);
   }
 
-  void _requestNotifPermission() async {
-    NotificationSettings settings = await firebaseMessaging.requestPermission(
+  void requestNotifPermission() async {
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+    NotificationSettings settings = await messaging.requestPermission(
       alert: true,
       badge: true,
       sound: true,
@@ -53,29 +57,25 @@ class _AllListingsPageState extends State<AllListingsPage> {
     }
   }
 
-  void _handleLocationPermission() {
-    bool locationPerm = Provider.of<LocationProvider>(context, listen: false).locationOn;
-    if (!_locationPermissionAsked && !locationPerm) {
-      _showLocationPermissionDialog();
-    }
-  }
-
-  void _showLocationPermissionDialog() {
+  void _askLocationPermission() {
     setState(() {
-      _locationPermissionAsked = true;
+      _locationPermissionAsked = true; // Mark as asked
     });
+
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Location Permission'),
-          content: Text('Do you allow us to access your location to show listings near you?'),
+          content: Text(
+              'Do you allow us to access your location to show listings near you?'),
           actions: <Widget>[
             TextButton(
               child: Text('Allow'),
               onPressed: () {
-                Provider.of<LocationProvider>(context, listen: false).changeLocationPermission(true);
+                Provider.of<LocationProvider>(context, listen: false)
+                    .changeLocationPermission(true);
                 Navigator.of(context).pop();
               },
             ),
@@ -93,25 +93,98 @@ class _AllListingsPageState extends State<AllListingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    const buttonTitles = [
+      "Add to a Service", "Members", "Babysitting",
+      "Housecleaning", "Borrow", "Playdates",
+      "News", "Events", "Lawn Care", "Garden", "Compost", "Carpool", "Other",
+    ];
+
+    final database = FirebaseDatabase.instance.ref().child('posts');
+
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: const Color(0xFF121212), // Dark grey background
       body: Center(
         child: Column(
           children: [
-            SizedBox(height: 40),
+            const SizedBox(height: 40,),
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 20.0),
+              padding: const EdgeInsets.only(top: 20.0, bottom: 20.0),
               child: Text(
                 "0 Listings",
                 style: TextStyle(
-                  fontSize: 24,
+                  fontSize: 24, // Slightly larger text
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
-            _buildCategoryButtons(),
-            ElevatedButton( // map button
+            Container(
+              height: 200,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: List.generate(buttonTitles.length, (index) {
+                    return Container(
+                      width: 150,
+                      // Set a fixed width for the buttons
+                      margin: const EdgeInsets.symmetric(horizontal: 10),
+                      // Add some margin between buttons
+                      child: ElevatedButton(
+                        onPressed: () {
+                          // Handle button press, could also navigate or update state
+                          if (index == 0) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => MyMakePostPage()),
+                            );
+                          }
+                          else if (index == 1) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) =>
+                                  SearchUsersPage(),
+                              ),
+                            );
+                          }
+                          print("${buttonTitles[index]} button pressed");
+                          if (_tagSelection == index) {//unselect category to show all
+                            setState(() {
+                              _tagSelection = 0;
+                            });
+                          }
+                          else if (index != 0 && index != 1) {
+                            setState(() {
+                              _tagSelection = index;
+                            });
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: index == 0
+                              ? Color(0xFF212121)
+                              : _tagSelection == index
+                              ? Color(0xFF212121)
+                              : const Color(0xFF1DB954), // Conditional color
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                                20), // Rounded corners
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 20), // Adjust padding for larger buttons
+                        ),
+                        child: Text(
+                          buttonTitles[index],
+                          style: TextStyle(fontSize: 16, color: Colors.white),
+                          // Ensure text color contrasts well with the button color
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+              ),
+            ),
+            ElevatedButton(
               onPressed: () {
                 Navigator.push(
                   context,
@@ -119,37 +192,42 @@ class _AllListingsPageState extends State<AllListingsPage> {
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF1DB954),
-                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                backgroundColor: Color(0xFF1DB954), // Green color for the button
+                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5.0),
+                  borderRadius: BorderRadius.circular(5.0), // More rectangular, less rounded
                 ),
               ),
-              child: Text(
+              child: const Text(
                 'Go to Map',
                 style: TextStyle(fontSize: 18, color: Colors.white),
               ),
             ),
             Expanded(
-              child: FirebaseAnimatedList( // list of posts based on selected category
-                query: databaseReference,
-                itemBuilder: (BuildContext context, DataSnapshot snapshot, Animation<double> animation, int index) {
-                  String postKey = snapshot.key.toString();
-                  Map post = snapshot.value as Map;
-                  if (_isSelectedCategory(post)) {
-                    return PostListing(post: post, postKey: postKey);
-                  } else {
-                    return Container();
+              child: FirebaseAnimatedList(
+                  query: database,
+                  itemBuilder: (BuildContext context, DataSnapshot snapshot,
+                      Animation<double> animation, int index) {
+                    String postKey = snapshot.key.toString();
+                    Map post = snapshot.value as Map;
+                    if (post['serviceType'].toString().toLowerCase() == buttonTitles[_tagSelection].toString().toLowerCase()) {
+                      return PostListing(post: post, postKey: postKey,);
+                    }
+                    else if (_tagSelection == 0) {
+                      return PostListing(post: post, postKey: postKey,);
+                    }
+                    else {
+                      return Container();
+                    }
                   }
-                },
               ),
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton( // dm button
+      floatingActionButton: FloatingActionButton(
         onPressed: () {
-          _notificationService.showNotification('title', 'body');
+          showNotification('title', 'body');
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => DMPage()),
@@ -160,94 +238,29 @@ class _AllListingsPageState extends State<AllListingsPage> {
       ),
     );
   }
-
-  Widget _buildCategoryButtons() { // select tag and add service bar
-    const buttonTitles = [
-      "Add to a Service", "Members", "Babysitting",
-      "Housecleaning", "Borrow", "Playdates",
-      "News", "Events", "Lawn Care", "Garden", "Compost", "Carpool", "Other",
-    ];
-
-    return Container(
-      height: 200,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: List.generate(buttonTitles.length, (index) {
-            return _buildCategoryButton(index, buttonTitles[index]);
-          }),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCategoryButton(int index, String title) {
-    return Container(
-      width: 150,
-      margin: EdgeInsets.symmetric(horizontal: 10),
-      child: ElevatedButton(
-        onPressed: () => _handleCategoryButtonPressed(index),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: _getButtonColor(index),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          padding: EdgeInsets.symmetric(vertical: 20),
-        ),
-        child: Text(
-          title,
-          style: TextStyle(fontSize: 16, color: Colors.white),
-          textAlign: TextAlign.center,
-        ),
-      ),
-    );
-  }
-
-  void _handleCategoryButtonPressed(int index) {
-    if (index == 0) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => MyMakePostPage()),
-      );
-    } else if (index == 1) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => SearchUsersPage()),
-      );
-    }
-    setState(() {
-      _tagSelection = index == _tagSelection ? 0 : index;
-    });
-  }
-
-  Color _getButtonColor(int index) {
-    if (index == 0 || index == 1) {
-      return Color(0xFF212121);
-    } else {
-      return _tagSelection == index ? Color(0xFF212121) : Color(0xFF1DB954);
-    }
-  }
-
-  bool _isSelectedCategory(Map post) {
-    if (_tagSelection == 0) {
-      return true;
-    } else {
-      return post['serviceType'].toString().toLowerCase() == buttonTitles[_tagSelection].toLowerCase();
-    }
-  }
 }
 
+final notificationsPlugin = FlutterLocalNotificationsPlugin();
+final databaseReference = FirebaseDatabase.instance.reference();
 void setupNotifications() {
-  final notificationsPlugin = FlutterLocalNotificationsPlugin();
   final settings = InitializationSettings(
     android: AndroidInitializationSettings('@mipmap/ic_launcher'),
   );
   notificationsPlugin.initialize(settings);
 }
-
+void showNotification(String title, String body) async {
+  final details = NotificationDetails(
+    android: AndroidNotificationDetails(
+      'channelId',
+      'channelName',
+      channelDescription: 'channelDescription',
+    ),
+  );
+  await notificationsPlugin.show(0, title, body, details);
+}
 void setupDatabaseListener() {
-  final databaseReference = FirebaseDatabase.instance.reference();
   /*databaseReference.child('messages').onChildAdded.listen((event) {
+    // Ensure that event.snapshot.value is of type Map<String, dynamic>
     final message = event.snapshot.value as Map<String, dynamic>?;
 
     if (message != null) {
@@ -258,9 +271,9 @@ void setupDatabaseListener() {
         showNotification(title, body);
       }
     }
-  });*/
+  });
+  */
 }
-
 void main() {
   setupNotifications();
   setupDatabaseListener();
