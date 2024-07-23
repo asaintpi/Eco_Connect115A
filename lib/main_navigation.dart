@@ -12,7 +12,7 @@ class MainNavigationPage extends StatefulWidget {
 }
 
 class _MainNavigationPageState extends State<MainNavigationPage> {
-  final List<Widget> pages = [AllListingsPage(), SearchPostsPage(), BlankPage(), ProfilePage()];
+  final List<Widget> pages = [AllListingsPage(), SearchPostsPage(), NotificationsPage(), ProfilePage()];
   int _selectedIndex = 0;
 
   void _onItemTapped(int index) {

@@ -27,9 +27,8 @@ class _AllListingsPageState extends State<AllListingsPage> {
   @override
   void initState() {
     super.initState();
-    bool locationPerm = Provider
-        .of<LocationProvider>(context, listen: false)
-        .locationOn;
+    bool locationPerm =
+        Provider.of<LocationProvider>(context, listen: false).locationOn;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!_locationPermissionAsked) {
         if (locationPerm == false) {
@@ -51,7 +50,8 @@ class _AllListingsPageState extends State<AllListingsPage> {
     );
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
       print('User granted permission');
-    } else if (settings.authorizationStatus == AuthorizationStatus.provisional) {
+    } else if (settings.authorizationStatus ==
+        AuthorizationStatus.provisional) {
       print('User granted provisional permission');
     } else {
       print('User declined or has not accepted permission');
@@ -95,9 +95,17 @@ class _AllListingsPageState extends State<AllListingsPage> {
   @override
   Widget build(BuildContext context) {
     const buttonTitles = [
-      "Add to a Service", "Members", "Babysitting",
-      "Housecleaning", "Borrow", "Playdates",
-      "News", "Events", "Lawn Care", "Garden", "Compost", "Carpool", "Other",
+      "Add to a Service",
+      "Members",
+      "Babysitting",
+      "Housecleaning",
+      "Borrow",
+      "Playdates",
+      "News",
+      "Events",
+      "Lawn Care",
+      "Carpool",
+      "Other",
     ];
 
     final database = FirebaseDatabase.instance.ref().child('posts');
@@ -107,7 +115,9 @@ class _AllListingsPageState extends State<AllListingsPage> {
       body: Center(
         child: Column(
           children: [
-            const SizedBox(height: 40,),
+            const SizedBox(
+              height: 40,
+            ),
             Padding(
               padding: const EdgeInsets.only(top: 20.0, bottom: 20.0),
               child: Text(
@@ -120,66 +130,123 @@ class _AllListingsPageState extends State<AllListingsPage> {
               ),
             ),
             Container(
-              height: 200,
+              height: 300, // Adjust this height as needed
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: List.generate(buttonTitles.length, (index) {
+                    String backgroundImage = '';
+
+                    // Assign background image based on button title
+                    switch (buttonTitles[index]) {
+                      case 'Add to a Service':
+                        backgroundImage = 'assets/images/addlisting.jpg';
+                        break;
+                      case 'Members':
+                        backgroundImage = 'assets/images/members.jpg';
+                        break;
+                      case 'Babysitting':
+                        backgroundImage = 'assets/images/babysitting.jpg';
+                        break;
+                      case 'Housecleaning':
+                        backgroundImage = 'assets/images/housecleaning.jpg';
+                        break;
+                      case 'Borrow':
+                        backgroundImage = 'assets/images/borrow.jpg';
+                        break;
+                      case 'Playdates':
+                        backgroundImage = 'assets/images/playdates.jpg';
+                        break;
+                      case 'News':
+                        backgroundImage = 'assets/images/news.jpg';
+                        break;
+                      case 'Events':
+                        backgroundImage = 'assets/images/events.jpg';
+                        break;
+                      case 'Lawn Care':
+                        backgroundImage = 'assets/images/lawncare.jpg';
+                        break;
+                      case 'Carpool':
+                        backgroundImage = 'assets/images/carpool.jpg';
+                        break;
+                      case 'Other':
+                        backgroundImage = 'assets/images/addlisting.jpg';
+                        break;
+                      default:
+                      // Default case, no background image
+                        backgroundImage = '';
+                    }
+
                     return Container(
-                      width: 150,
-                      // Set a fixed width for the buttons
+                      width: 220,
+                      height: 280,
                       margin: const EdgeInsets.symmetric(horizontal: 10),
-                      // Add some margin between buttons
-                      child: ElevatedButton(
-                        onPressed: () {
-                          // Handle button press, could also navigate or update state
-                          if (index == 0) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => MyMakePostPage()),
-                            );
-                          }
-                          else if (index == 1) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) =>
-                                  SearchUsersPage(),
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          // Background image
+                          if (backgroundImage.isNotEmpty)
+                            Positioned.fill(
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(20),
+                                child: Image.asset(
+                                  backgroundImage,
+                                  fit: BoxFit.cover,
+                                ),
                               ),
-                            );
-                          }
-                          print("${buttonTitles[index]} button pressed");
-                          if (_tagSelection == index) {//unselect category to show all
-                            setState(() {
-                              _tagSelection = 0;
-                              _key = UniqueKey();
-                            });
-                          }
-                          else if (index != 0 && index != 1) {
-                            setState(() {
-                              _tagSelection = index;
-                            });
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: index == 0
-                              ? Color(0xFF212121)
-                              : _tagSelection == index
-                              ? Color(0xFF212121)
-                              : const Color(0xFF1DB954), // Conditional color
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                                20), // Rounded corners
+                            ),
+
+                          // ElevatedButton with transparent background
+                          ElevatedButton(
+                            onPressed: () {
+                              // Your existing onPressed logic here
+                              if (index == 0) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => MyMakePostPage(),
+                                  ),
+                                );
+                              } else if (index == 1) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => SearchUsersPage(),
+                                  ),
+                                );
+                              }
+                              print("${buttonTitles[index]} button pressed");
+                              if (_tagSelection == index) {
+                                // unselect category to show all
+                                setState(() {
+                                  _tagSelection = 0;
+                                  _key = UniqueKey();
+                                });
+                              } else if (index != 0 && index != 1) {
+                                setState(() {
+                                  _tagSelection = index;
+                                });
+                              }
+                            },
+                            style: ButtonStyle(
+                              backgroundColor: WidgetStateProperty.all<Color>(Colors.transparent),
+                              shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                              ),
+                              padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                                EdgeInsets.symmetric(vertical: 20),
+                              ),
+                            ),
+                            child: Text(
+                              buttonTitles[index],
+                              style: TextStyle(
+                                  fontSize: 16, color: Colors.white),
+                              textAlign: TextAlign.center,
+                            ),
                           ),
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 20), // Adjust padding for larger buttons
-                        ),
-                        child: Text(
-                          buttonTitles[index],
-                          style: TextStyle(fontSize: 16, color: Colors.white),
-                          // Ensure text color contrasts well with the button color
-                          textAlign: TextAlign.center,
-                        ),
+                        ],
                       ),
                     );
                   }),
@@ -194,10 +261,13 @@ class _AllListingsPageState extends State<AllListingsPage> {
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF1DB954), // Green color for the button
-                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                backgroundColor:
+                Color(0xFF1DB954), // Green color for the button
+                padding:
+                const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5.0), // More rectangular, less rounded
+                  borderRadius: BorderRadius.circular(5.0),
+                  // More rectangular, less rounded
                 ),
               ),
               child: const Text(
@@ -208,22 +278,31 @@ class _AllListingsPageState extends State<AllListingsPage> {
             SizedBox(height: 15),
             Expanded(
               child: FirebaseAnimatedList(
-                  query: database,
-                  key: _key,
-                  itemBuilder: (BuildContext context, DataSnapshot snapshot,
-                      Animation<double> animation, int index) {
-                    String postKey = snapshot.key.toString();
-                    Map post = snapshot.value as Map;
-                    if (post['serviceType'].toString().toLowerCase() == buttonTitles[_tagSelection].toString().toLowerCase()) {
-                      return PostListing(post: post, postKey: postKey,);
-                    }
-                    else if (_tagSelection == 0) {
-                      return PostListing(post: post, postKey: postKey,);
-                    }
-                    else {
-                      return Container();
-                    }
+                query: database,
+                key: _key,
+                itemBuilder: (BuildContext context, DataSnapshot snapshot,
+                    Animation<double> animation, int index) {
+                  String postKey = snapshot.key.toString();
+                  Map post = snapshot.value as Map;
+                  if (post['serviceType']
+                      .toString()
+                      .toLowerCase() ==
+                      buttonTitles[_tagSelection]
+                          .toString()
+                          .toLowerCase()) {
+                    return PostListing(
+                      post: post,
+                      postKey: postKey,
+                    );
+                  } else if (_tagSelection == 0) {
+                    return PostListing(
+                      post: post,
+                      postKey: postKey,
+                    );
+                  } else {
+                    return Container();
                   }
+                },
               ),
             ),
           ],
@@ -246,12 +325,14 @@ class _AllListingsPageState extends State<AllListingsPage> {
 
 final notificationsPlugin = FlutterLocalNotificationsPlugin();
 final databaseReference = FirebaseDatabase.instance.reference();
+
 void setupNotifications() {
   final settings = InitializationSettings(
     android: AndroidInitializationSettings('@mipmap/ic_launcher'),
   );
   notificationsPlugin.initialize(settings);
 }
+
 void showNotification(String title, String body) async {
   final details = NotificationDetails(
     android: AndroidNotificationDetails(
@@ -262,6 +343,7 @@ void showNotification(String title, String body) async {
   );
   await notificationsPlugin.show(0, title, body, details);
 }
+
 void setupDatabaseListener() {
   /*databaseReference.child('messages').onChildAdded.listen((event) {
     // Ensure that event.snapshot.value is of type Map<String, dynamic>
@@ -278,6 +360,7 @@ void setupDatabaseListener() {
   });
   */
 }
+
 void main() {
   setupNotifications();
   setupDatabaseListener();

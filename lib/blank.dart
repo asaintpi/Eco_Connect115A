@@ -1,28 +1,78 @@
 import 'package:flutter/material.dart';
 
-class MyApp extends StatelessWidget {
+class NotificationsPage extends StatelessWidget {
+  final List<String> notifications = [
+    'Notification 1',
+    'Notification 2',
+    'Notification 3',
+    'Notification 4',
+    'Notification 5',
+  ];
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Blank Page',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+    return Scaffold(
+      backgroundColor: const Color(0xFF121212),
+      appBar: AppBar(
+        title: Text('Notifications'),
       ),
-      home: BlankPage(),
+      body: Center(
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                itemCount: notifications.length,
+                itemBuilder: (context, index) {
+                  return NotificationItem(notification: notifications[index]);
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
 
-class BlankPage extends StatelessWidget {
+class NotificationItem extends StatelessWidget {
+  final String notification;
+
+  const NotificationItem({required this.notification});
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Blank Page'),
-      ),
-      body: Center(
-        child: Text(''),
+    return Card(
+      color: Color(0xFF212121),
+      margin: EdgeInsets.all(10),
+      child: ListTile(
+        leading: Icon(Icons.notifications, color: Colors.white),
+        title: Text(
+          notification,
+          style: TextStyle(color: Colors.white),
+        ),
+        subtitle: Text(
+          'Placeholder notification description',
+          style: TextStyle(color: Color(0xFFB3B3B3)),
+        ),
+        onTap: () {
+          // Handle notification tap
+        },
       ),
     );
   }
+}
+
+void main() {
+  runApp(MaterialApp(
+    title: 'Notifications Page',
+    theme: ThemeData(
+      primarySwatch: Colors.blue,
+      scaffoldBackgroundColor: const Color(0xFF121212),
+    ),
+    home: Builder(
+      builder: (context) => Scaffold(
+        body: NotificationsPage(),
+      ),
+    ),
+  ));
 }
