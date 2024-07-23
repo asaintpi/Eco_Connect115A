@@ -111,7 +111,7 @@ class _AllListingsPageState extends State<AllListingsPage> {
             Padding(
               padding: const EdgeInsets.only(top: 20.0, bottom: 20.0),
               child: Text(
-                "0 Listings",
+                "Listings",
                 style: TextStyle(
                   fontSize: 24, // Slightly larger text
                   color: Colors.white,

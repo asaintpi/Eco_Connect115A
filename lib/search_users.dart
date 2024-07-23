@@ -87,6 +87,25 @@ class _SearchUsersPageState extends State<SearchUsersPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Color(0xFF212121),
+        iconTheme: IconThemeData(color: Color(0xFFB3B3B3)),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        title: Padding(
+          padding: EdgeInsets.only(right: 48.0), // Adjust padding as needed
+          child: Center(
+            child: Text(
+              'Search Users',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ),
+      ),
       backgroundColor: const Color(0xFF121212), // Dark grey background
       body: Center(
         child: Column(
