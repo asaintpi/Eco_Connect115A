@@ -308,17 +308,7 @@ class _AllListingsPageState extends State<AllListingsPage> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showNotification('title', 'body');
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => DMPage()),
-          );
-        },
-        child: Icon(Icons.message),
-        backgroundColor: Colors.white,
-      ),
+
     );
   }
 }

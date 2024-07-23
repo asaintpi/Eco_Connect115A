@@ -90,52 +90,58 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF212121),
         iconTheme: IconThemeData(color: const Color(0xFFB3B3B3)),
-        title: Row(
-          children: [
-            Text(
-              'Profile - ${widget.otherUserPhone}',
-              style: TextStyle(color: const Color(0xFFB3B3B3)),
-            ),
-            SizedBox(width: 10),
-            GestureDetector(
-              onTap: () {
-                _reportUser(widget.otherUserPhone);
-              },
+        title: Text(
+          'Profile - ${widget.otherUserPhone}',
+          style: TextStyle(color: const Color(0xFFB3B3B3)),
+        ),
+        actions: [
+          GestureDetector(
+            onTap: () {
+              _reportUser(widget.otherUserPhone);
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
               child: CircleAvatar(
-                radius: 15,
                 backgroundColor: Colors.red,
                 child: Icon(
                   Icons.flag,
                   color: Colors.white,
-                  size: 20,
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
       backgroundColor: const Color(0xFF121212),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center, // Center content vertically
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CircleAvatar(
-              radius: 50,
-              backgroundImage: AssetImage('assets/images/elogo.png'), // Placeholder image
+            Center(
+              child: CircleAvatar(
+                radius: 50,
+                backgroundImage: AssetImage('assets/images/elogo.png'), // Placeholder image
+              ),
             ),
             SizedBox(height: 20),
-            Text(
-              'Username: ${userRating != null ? 'Jane Doe' : 'Loading...'}', // Placeholder or loading text
-              style: TextStyle(color: Colors.white, fontSize: 18),
+            Center(
+              child: Text(
+                'Username: ${userRating != null ? 'Jane Doe' : 'Loading...'}', // Placeholder or loading text
+                style: TextStyle(color: Colors.white, fontSize: 18),
+              ),
             ),
             SizedBox(height: 10),
-            Text(
-              'Phone: ${widget.otherUserPhone}', // Display the user's phone number
-              style: TextStyle(color: Colors.white),
+            Center(
+              child: Text(
+                'Phone: ${widget.otherUserPhone}', // Display the user's phone number
+                style: TextStyle(color: Colors.white),
+              ),
             ),
             SizedBox(height: 20),
             Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
                   'Rating: ',
@@ -150,12 +156,15 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
               ],
             ),
             SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _showRatingDialog,
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all<Color>(const Color(0xFF1DB954)),
+            Center(
+              child: ElevatedButton(
+                onPressed: _showRatingDialog,
+                style: ButtonStyle(
+                  backgroundColor:
+                  MaterialStateProperty.all<Color>(const Color(0xFF1DB954)),
+                ),
+                child: Text('Rate User'),
               ),
-              child: Text('Rate User'),
             ),
           ],
         ),
