@@ -17,22 +17,22 @@ class _ProfilePageState extends State<ProfilePage> {
   int _selectedIndex = 3; // Index for 'Profile', assuming it's the fourth item
   String name = ''; // Placeholder name
   String bio = '';
-  File? _profileImage;
+  String? profileImageUrl;
+  //File? _profileImage;
 
   @override
   void initState() {
     super.initState();
     getUserDataByPhone();
-    _loadProfileImage();
+    //_loadProfileImage();
   }
 
   Future<void> getUserDataByEmail() async {
     final database = FirebaseDatabase.instance.ref();
-    final email = Provider.of<UserState>(context, listen: false).email; // Ensure you have the email available here
+    final email = Provider.of<UserState>(context, listen: false).email;
 
     try {
       if (email != null && email.isNotEmpty) {
-        // Query the 'users' node for entries where 'email' equals the provided email address
         final event = await database.child('users')
             .orderByChild('email')
             .equalTo(email)
@@ -43,18 +43,18 @@ class _ProfilePageState extends State<ProfilePage> {
         if (snapshot.value != null) {
           final Map<String, dynamic> userData = Map<String, dynamic>.from(snapshot.value as Map);
 
-          // Process the retrieved data
           userData.forEach((key, value) {
             final user = Map<String, dynamic>.from(value);
             print('User found: $user');
-            // Access user details
             setState(() {
               name = user['name'];
               bio = user['description'];
+              profileImageUrl = user['profileImageUrl']; // Retrieve profile image URL
             });
             // Perform actions with the retrieved data
             print('Name: $name');
             print('Description: $bio');
+            print('Profile Image URL: $profileImageUrl');
           });
         } else {
           print('No user found with the email: $email');
@@ -67,17 +67,14 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-
   Future<void> getUserDataByPhone() async {
     final database = FirebaseDatabase.instance.ref();
     final phone = Provider.of<UserState>(context, listen: false).phone;
 
     try {
       if (phone == '1111111111') {
-        // Handle case where phone number is default
         print('Phone number is default, retrieving email from database...');
 
-        // Query the 'users' node for entries where 'phone' equals the provided phone number
         final event = await database.child('users')
             .orderByChild('phone')
             .equalTo(phone)
@@ -88,7 +85,6 @@ class _ProfilePageState extends State<ProfilePage> {
         if (snapshot.value != null) {
           final Map<String, dynamic> userData = Map<String, dynamic>.from(snapshot.value as Map);
 
-          // Extract email and other user details
           String? userEmail;
           userData.forEach((key, value) {
             final user = Map<String, dynamic>.from(value);
@@ -97,7 +93,6 @@ class _ProfilePageState extends State<ProfilePage> {
           });
 
           if (userEmail != null) {
-            // Now retrieve user data based on the email
             final emailEvent = await database.child('users')
                 .orderByChild('email')
                 .equalTo(userEmail)
@@ -110,28 +105,27 @@ class _ProfilePageState extends State<ProfilePage> {
               emailUserData.forEach((key, value) {
                 final user = Map<String, dynamic>.from(value);
                 print('User found by email: $user');
-                // Access user details
                 setState(() {
                   name = user['name'];
                   bio = user['description'];
+                  profileImageUrl = user['profileImageUrl']; // Retrieve profile image URL
                 });
-                // Perform actions with the retrieved data
                 print('Name: $name');
                 print('Description: $bio');
+                print('Profile Image URL: $profileImageUrl');
               });
             } else {
               print('No user found with the email: $userEmail');
-
             }
           } else {
             print('No email found for phone number: $phone');
           }
         } else {
           print('No user found with the phone number: $phone');
-
+          // Fallback to get user data by email
+          getUserDataByEmail();
         }
       } else {
-        // Handle case where phone number is not default
         final event = await database.child('users')
             .orderByChild('phone')
             .equalTo(phone)
@@ -144,34 +138,23 @@ class _ProfilePageState extends State<ProfilePage> {
           userData.forEach((key, value) {
             final user = Map<String, dynamic>.from(value);
             print('User found: $user');
-            // Access user details
             setState(() {
               name = user['name'];
               bio = user['description'];
+              profileImageUrl = user['profileImageUrl']; // Retrieve profile image URL
             });
-            // Perform actions with the retrieved data
             print('Name: $name');
             print('Description: $bio');
+            print('Profile Image URL: $profileImageUrl');
           });
         } else {
           print('No user found with the phone number: $phone');
+          // Consider using getUserDataByEmail() as a fallback or error handling.
           getUserDataByEmail();
         }
       }
     } on FirebaseException catch (e) {
       print('Error retrieving data: $e');
-    }
-  }
-
-  void _loadProfileImage() async {
-    final directory = await getApplicationDocumentsDirectory();
-    final path = directory.path;
-    final file = File('$path/profile_image.png');
-
-    if (file.existsSync()) {
-      setState(() {
-        _profileImage = file;
-      });
     }
   }
 
@@ -188,8 +171,8 @@ class _ProfilePageState extends State<ProfilePage> {
             CircleAvatar(
               radius: 50,
               backgroundColor: Colors.grey[400], // Set the circle color to a shade of grey
-              backgroundImage: _profileImage != null ? FileImage(_profileImage!) : null,
-              child: _profileImage == null
+              backgroundImage: profileImageUrl != null ? NetworkImage(profileImageUrl!) : null,
+              child: profileImageUrl == null
                   ? const Icon(
                 Icons.person,
                 size: 50,

@@ -7,8 +7,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
+import 'package:provider/provider.dart';
 import 'all_listings_page.dart';
 import 'package:path/path.dart' as Path;
+
+import 'globalstate.dart';
 
 class SetNameAndPfpPage extends StatefulWidget {
   final String phone; // Add phone parameter to accept phone number
@@ -49,8 +52,6 @@ class _SetNameAndPfpPageState extends State<SetNameAndPfpPage> {
     }
   }
 
-
-
   Future<void> writeUserData(String phone, String email, String name,
       String description) async {
     final database = FirebaseDatabase.instance.ref();
@@ -73,13 +74,26 @@ class _SetNameAndPfpPageState extends State<SetNameAndPfpPage> {
 
   }
 
+  String _getFileExtension(String path) {
+    return path.split('.').last; // Extract file extension
+  }
+
   Future<void> uploadImageToFirebase() async {
     try {
       if (_image == null && _webImage == null) {
+        print('No image selected.');
         return;
       }
 
-      final storageRef = FirebaseStorage.instance.ref().child('images/${DateTime.now().millisecondsSinceEpoch}$_extension');
+      // Get file extension
+      String fileExtension = '';
+      if (_image != null) {
+        fileExtension = _getFileExtension(_image!.path);
+      } else if (_webImage != null) {
+        fileExtension = '.jpg'; // Default extension for web images
+      }
+
+      final storageRef = FirebaseStorage.instance.ref().child('images/${DateTime.now().millisecondsSinceEpoch}$fileExtension');
       UploadTask uploadTask;
 
       if (kIsWeb) {
@@ -91,12 +105,33 @@ class _SetNameAndPfpPageState extends State<SetNameAndPfpPage> {
       await uploadTask.whenComplete(() => print('Image uploaded successfully'));
 
       final downloadUrl = await storageRef.getDownloadURL();
+      print('Download URL: $downloadUrl'); // Verify the URL is retrieved
 
-      // Save the image URL in Firebase Realtime Database
-      final databaseRef = FirebaseDatabase.instance.ref().child('imageUrls');
-      final imageRef = databaseRef.push(); // Create a new unique reference
-      await imageRef.set({'url': downloadUrl});
+      // Determine the user identifier (phone or email)
+      String userKey = widget.phone;
+      if (userKey == '1111111111') {
+        userKey = widget.email;
+      }
 
+      if (userKey.isEmpty) {
+        print('No valid user identifier found.');
+        return;
+      }
+
+      final databaseRef = FirebaseDatabase.instance.ref().child('users').orderByChild('email').equalTo(widget.email);
+      final event = await databaseRef.once();
+      final userSnapshot = event.snapshot;
+
+      if (userSnapshot.value != null) {
+        final userMap = Map<String, dynamic>.from(userSnapshot.value as Map);
+        final userKey = userMap.keys.first; // Get the first user's key
+        final userRef = FirebaseDatabase.instance.ref().child('users').child(userKey);
+
+        await userRef.update({'profileImageUrl': downloadUrl});
+        print('Image URL updated in database successfully');
+      } else {
+        print('No user found with the email: ${widget.email}');
+      }
     } catch (e) {
       print('Error uploading image: $e');
     }
@@ -180,13 +215,15 @@ class _SetNameAndPfpPageState extends State<SetNameAndPfpPage> {
                     String description = _descriptionController.text.trim();
                     if (name.isNotEmpty) {
                       uploadImageToFirebase();
+                      print("phone:  $widget.phone");
+                      print("email:  $widget.email");
                       writeUserData(widget.phone, widget.email, name, description).then((_) {
-                        /*Navigator.pushReplacement(
+                        Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
                               builder: (context) => MainNavigationPage()),
                         );
-                         */
+
                       }).catchError((error) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
@@ -245,9 +282,9 @@ class _SetNameAndPfpPageState extends State<SetNameAndPfpPage> {
 
       }
     } else {
-      //return const AssetImage('assets/placeholder.png'); // Placeholder image
-      print("null");
-      return null;
+      return const AssetImage('assets/placeholder.png'); // Placeholder image
+      //print("null");
+      //return null;
     }
   }
 }

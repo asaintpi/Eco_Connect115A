@@ -193,6 +193,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           );
           // Handle new user logic, such as displaying a welcome message
+          print("nav");
         } else {
           print('Google Sign-In successful: ${user.uid}');
           print('User email: $email');
