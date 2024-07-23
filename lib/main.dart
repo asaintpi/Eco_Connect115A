@@ -86,7 +86,7 @@ Future<void> requestLocationPermission() async {
   }
 }
 
-Future<void> _determinePosition() async {
+Future<List> determinePosition() async {
   await requestLocationPermission();
 
   bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -100,9 +100,13 @@ Future<void> _determinePosition() async {
   );
 
   if (position != null) {
+
     print('Current Location: ${position.latitude}, ${position.longitude}');
+    return [position.latitude, position.longitude];
+
     // Handle location here, e.g., save to Firebase database
   } else {
     print('Failed to get current location.');
+    return[-1, -1];
   }
 }

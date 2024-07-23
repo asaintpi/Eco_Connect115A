@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
 
 class ViewProfilePage extends StatefulWidget {
+
+  ViewProfilePage({required String this.otherUserPhone});
   final String otherUserPhone;
 
-  ViewProfilePage({required this.otherUserPhone});
-
   @override
-  _ViewProfilePageState createState() => _ViewProfilePageState();
+  _ViewProfilePageState createState() => _ViewProfilePageState(this.otherUserPhone);
 }
 
 class _ViewProfilePageState extends State<ViewProfilePage> {
+  _ViewProfilePageState(String this.otherUserPhone);
   double? userRating; // Nullable to handle loading or absence of data
   int? numberOfRatings; // Nullable to handle loading or absence of data
+  final String otherUserPhone;
+
+
 
   void _showRatingDialog() {
     showDialog(
@@ -190,6 +194,7 @@ class RatingBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     double rating = initialRating;
     return Row(
       mainAxisSize: MainAxisSize.min,

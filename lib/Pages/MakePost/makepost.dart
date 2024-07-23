@@ -9,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../../globalstate.dart';
+import '../../main.dart';
 
 class MyMakePostPage extends StatefulWidget {
   const MyMakePostPage({Key? key}) : super(key: key);
@@ -65,12 +66,17 @@ class _MyMakePostPageState extends State<MyMakePostPage> {
 
 
 
-  Future<void> writePost({required String author, required String title, required String body, required String service}) async {
+  Future<void> writePost({required String author, required String title, required String body,
+    required String service}) async {
+    // get post location
+    List position = await determinePosition();
     // gets the UTC time and date at the moment of post
     final now = DateTime.now();
-    //root database reference
-    //final String phoneNumber = Provider.of<UserState>(context, listen: false).phone;
-    final database = FirebaseDatabase.instance.ref();
+
+    double longitude = position[0];
+    double latitude = position[1];
+
+    final database = await FirebaseDatabase.instance.ref();
     final Map<String, dynamic> post = {
       'author': author,
       'personal id': Provider.of<UserState>(context, listen: false).phone,
@@ -78,6 +84,8 @@ class _MyMakePostPageState extends State<MyMakePostPage> {
       'body' : body,
       'time' : now.toString(),
       'serviceType' : service,
+      'longitude': longitude,
+      'latitude': latitude,
     };
     try {
       // Push data to the 'posts' node with a unique key
@@ -253,14 +261,15 @@ class _MyMakePostPageState extends State<MyMakePostPage> {
               Container(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     if (_titleController.text.isNotEmpty &&
                         _bodyController.text.isNotEmpty) {
-                      writePost(
+                      await writePost(
                           author: name,
                           title: _titleController.text,
                           body: _bodyController.text,
-                          service: selectedService);
+                          service: selectedService,
+                      );
                       Navigator.pop(context);
                       }
                       else if (_imagePath != null) {
