@@ -1,5 +1,6 @@
 import 'package:eco_connect/all_listings_page.dart';
 import 'package:eco_connect/globalstate.dart';
+import 'package:eco_connect/main_navigation.dart';
 import 'package:firebase_auth_platform_interface/firebase_auth_platform_interface.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -280,7 +281,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   await _signInWithGoogle();
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => AllListingsPage()),
+                    MaterialPageRoute(builder: (context) => MainNavigationPage()),
                   );
                 },
                 style: ElevatedButton.styleFrom(
