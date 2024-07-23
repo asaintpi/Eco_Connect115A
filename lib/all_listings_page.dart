@@ -229,8 +229,8 @@ class _AllListingsPageState extends State<AllListingsPage> {
                               }
                             },
                             style: ButtonStyle(
-                              backgroundColor: WidgetStateProperty.all<Color>(Colors.transparent),
-                              shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                              backgroundColor: MaterialStateProperty.all<Color>(Colors.transparent),
+                              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                                 RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(20),
                                 ),
