@@ -1,6 +1,7 @@
 import 'package:eco_connect/all_listings_page.dart';
 import 'package:eco_connect/globalstate.dart';
 import 'package:eco_connect/main_navigation.dart';
+import 'package:eco_connect/set_name_pfp.dart';
 import 'package:firebase_auth_platform_interface/firebase_auth_platform_interface.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -130,6 +131,17 @@ class _MyHomePageState extends State<MyHomePage> {
     try {
       UserCredential userCredential = await signInWithGoogle();
       print('Google Sign-In successful: ${userCredential.user}');
+      //User? user = userCredential.user;
+      //String? email = user?.email;
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SetNameAndPfpPage(
+            phone: '',
+            email: '',
+          ),
+        ),
+      );
       // You can now navigate to another screen or perform other actions
     } catch (e) {
       print('Google Sign-In failed: $e');
