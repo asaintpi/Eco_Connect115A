@@ -65,22 +65,30 @@ class _ViewPostState extends State<ViewPost> {
     final database = FirebaseDatabase.instance.ref('posts/$postKey').child('comments');
 
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Color(0xFF212121),
+        iconTheme: IconThemeData(color: Color(0xFFB3B3B3)),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        title: Padding(
+          padding: EdgeInsets.only(right: 48.0), // Adjust padding as needed
+          child: Center(
+            child: Text(
+              'Listing',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ),
+      ),
       backgroundColor: const Color(0xFF121212), // Dark grey background
       body: Center(
           child: Column(
             children: [
               const SizedBox(height: 20,),
-              Padding(
-                padding: const EdgeInsets.only(top: 20.0, bottom: 20.0),
-                child: Text(
-                  "Listing",
-                  style: TextStyle(
-                    fontSize: 18, // Slightly larger text
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
               Container(
                 child: PostListing(post: post, postKey: postKey),
 

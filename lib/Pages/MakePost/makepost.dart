@@ -120,8 +120,23 @@ class _MyMakePostPageState extends State<MyMakePostPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Create a Listing'),
-        backgroundColor: Colors.black,
+        backgroundColor: Color(0xFF212121),
+        iconTheme: IconThemeData(color: Color(0xFFB3B3B3)),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        title: Padding(
+          padding: EdgeInsets.only(right: 48.0), // Adjust padding as needed
+          child: Center(
+            child: Text(
+              'Create Listing',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ),
       ),
       body: Container(
         color: const Color(0xFF121212),
