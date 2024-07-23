@@ -26,38 +26,139 @@ class _ProfilePageState extends State<ProfilePage> {
     _loadProfileImage();
   }
 
+  Future<void> getUserDataByEmail() async {
+    final database = FirebaseDatabase.instance.ref();
+    final email = Provider.of<UserState>(context, listen: false).email; // Ensure you have the email available here
+
+    try {
+      if (email != null && email.isNotEmpty) {
+        // Query the 'users' node for entries where 'email' equals the provided email address
+        final event = await database.child('users')
+            .orderByChild('email')
+            .equalTo(email)
+            .once();
+
+        final snapshot = event.snapshot;
+
+        if (snapshot.value != null) {
+          final Map<String, dynamic> userData = Map<String, dynamic>.from(snapshot.value as Map);
+
+          // Process the retrieved data
+          userData.forEach((key, value) {
+            final user = Map<String, dynamic>.from(value);
+            print('User found: $user');
+            // Access user details
+            setState(() {
+              name = user['name'];
+              bio = user['description'];
+            });
+            // Perform actions with the retrieved data
+            print('Name: $name');
+            print('Description: $bio');
+          });
+        } else {
+          print('No user found with the email: $email');
+        }
+      } else {
+        print('Email is not available or empty.');
+      }
+    } on FirebaseException catch (e) {
+      print('Error retrieving data: $e');
+    }
+  }
+
+
   Future<void> getUserDataByPhone() async {
     final database = FirebaseDatabase.instance.ref();
     final phone = Provider.of<UserState>(context, listen: false).phone;
+
     try {
-      // Query the 'users' node for entries where 'phone' equals the provided phone number
-      final event = await database.child('users')
-          .orderByChild('phone')
-          .equalTo(phone)
-          .once();
+      if (phone == '1111111111') {
+        // Handle case where phone number is default
+        print('Phone number is default, retrieving email from database...');
 
-      final snapshot = event.snapshot;
+        // Query the 'users' node for entries where 'phone' equals the provided phone number
+        final event = await database.child('users')
+            .orderByChild('phone')
+            .equalTo(phone)
+            .once();
 
-      if (snapshot.value != null) {
-        // Process the retrieved data
-        final Map<String, dynamic> userData = Map<String, dynamic>.from(snapshot.value as Map);
+        final snapshot = event.snapshot;
+
+        if (snapshot.value != null) {
+          final Map<String, dynamic> userData = Map<String, dynamic>.from(snapshot.value as Map);
+
+          // Extract email and other user details
+          String? userEmail;
           userData.forEach((key, value) {
-          final user = Map<String, dynamic>.from(value);
-          print('User found: $user');
-          // Access user details
-          setState(() {
-            name = user['name'];
-            bio = user['description'];
+            final user = Map<String, dynamic>.from(value);
+            userEmail = user['email'];
+            print('User email: $userEmail');
           });
-          // Perform actions with the retrieved data
-          print('Name: $name');
-          print('Description: $bio');
-        });
+
+          if (userEmail != null) {
+            // Now retrieve user data based on the email
+            final emailEvent = await database.child('users')
+                .orderByChild('email')
+                .equalTo(userEmail)
+                .once();
+
+            final emailSnapshot = emailEvent.snapshot;
+
+            if (emailSnapshot.value != null) {
+              final Map<String, dynamic> emailUserData = Map<String, dynamic>.from(emailSnapshot.value as Map);
+              emailUserData.forEach((key, value) {
+                final user = Map<String, dynamic>.from(value);
+                print('User found by email: $user');
+                // Access user details
+                setState(() {
+                  name = user['name'];
+                  bio = user['description'];
+                });
+                // Perform actions with the retrieved data
+                print('Name: $name');
+                print('Description: $bio');
+              });
+            } else {
+              print('No user found with the email: $userEmail');
+
+            }
+          } else {
+            print('No email found for phone number: $phone');
+          }
+        } else {
+          print('No user found with the phone number: $phone');
+
+        }
       } else {
-        print('No user found with the phone number: $phone');
+        // Handle case where phone number is not default
+        final event = await database.child('users')
+            .orderByChild('phone')
+            .equalTo(phone)
+            .once();
+
+        final snapshot = event.snapshot;
+
+        if (snapshot.value != null) {
+          final Map<String, dynamic> userData = Map<String, dynamic>.from(snapshot.value as Map);
+          userData.forEach((key, value) {
+            final user = Map<String, dynamic>.from(value);
+            print('User found: $user');
+            // Access user details
+            setState(() {
+              name = user['name'];
+              bio = user['description'];
+            });
+            // Perform actions with the retrieved data
+            print('Name: $name');
+            print('Description: $bio');
+          });
+        } else {
+          print('No user found with the phone number: $phone');
+          getUserDataByEmail();
+        }
       }
     } on FirebaseException catch (e) {
-      // Handle potential errors during data retrieval
       print('Error retrieving data: $e');
     }
   }

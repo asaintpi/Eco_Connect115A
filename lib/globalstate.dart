@@ -2,13 +2,19 @@ import 'package:flutter/foundation.dart';
 
 class UserState with ChangeNotifier {
   String _phone = '';
+  String _email = '';
   DateTime _signInTime = DateTime.now();
 
   String get phone => _phone;
+  String get email => _email;
   DateTime get signInTime => _signInTime;
 
   void setPhone(String phone) {
     _phone = phone;
+    notifyListeners();
+  }
+  void setEmail(String email) {
+    _email = email;
     notifyListeners();
   }
   void setSignInTime(DateTime signInTime) {

@@ -5,6 +5,7 @@ import 'package:eco_connect/set_name_pfp.dart';
 import 'package:firebase_auth_platform_interface/firebase_auth_platform_interface.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'notification.dart';
@@ -12,6 +13,7 @@ import 'security_code_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:eco_connect/map_screen.dart';
+//import 'package:google_sign_in/google_sign_in_web.dart' as gsi_web;
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -45,17 +47,6 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Future<UserCredential> signInWithGoogle() async {
-    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-    final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
-
-    final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth?.accessToken,
-      idToken: googleAuth?.idToken,
-    );
-
-    return await FirebaseAuth.instance.signInWithCredential(credential);
-  }
 
   Future<UserCredential> signInWithEmailAndPassword(String email, String password) async {
     return await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
@@ -127,26 +118,95 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Future<void> _signInWithGoogle() async {
+  Future<UserCredential> signInWithGoogle() async {
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+    final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth?.accessToken,
+      idToken: googleAuth?.idToken,
+    );
+
+    return await FirebaseAuth.instance.signInWithCredential(credential);
+  }
+
+  Future<void> _signInWithGoogle(BuildContext context) async {
     try {
       UserCredential userCredential = await signInWithGoogle();
-      print('Google Sign-In successful: ${userCredential.user}');
-      //User? user = userCredential.user;
-      //String? email = user?.email;
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => SetNameAndPfpPage(
-            phone: '',
-            email: '',
+      User? user = userCredential.user;
+
+      if (user != null) {
+        String? email = user.email;
+        print('Google Sign-In successful: ${user.uid}');
+        print('User email: $email');
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AllListingsPage(),
           ),
-        ),
-      );
-      // You can now navigate to another screen or perform other actions
+        );
+      }
     } catch (e) {
-      print('Google Sign-In failed: $e');
+      print('Error during Google Sign-In: $e');
     }
   }
+
+  Future<void> _signInWithGoogleWeb(BuildContext context) async {
+    GoogleSignIn googleSignIn = GoogleSignIn();
+    GoogleSignInAccount? googleUser;
+
+    try {
+      googleUser = await googleSignIn.signInSilently();
+      googleUser ??= await googleSignIn.signIn();
+    } catch (error) {
+      print('Error during Google Sign-In: $error');
+    }
+
+    if (googleUser != null) {
+      final googleAuth = await googleUser.authentication;
+
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+      User? user = userCredential.user;
+
+      if (user != null) {
+        String? email = user.email;
+        bool isNewUser = userCredential.additionalUserInfo!.isNewUser;
+        Provider.of<UserState>(context, listen: false).setEmail(email!);
+        if (isNewUser) {
+          print('Google Sign-In successful: ${user.uid}');
+          print('User email: $email');
+          print('Welcome, new user!');
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => SetNameAndPfpPage(phone: '1111111111', email: email!),
+            ),
+          );
+          // Handle new user logic, such as displaying a welcome message
+        } else {
+          print('Google Sign-In successful: ${user.uid}');
+          print('User email: $email');
+          print('Welcome back, existing user!');
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AllListingsPage(),
+            ),
+          );
+          // Handle existing user logic, such as redirecting to the main app page
+        }
+
+
+      }
+    }
+  }
+
 
   Future<void> verifyPhoneNumber(String phone) async {
     final FirebaseAuth auth = FirebaseAuth.instance; // Create an instance of FirebaseAuth
@@ -290,7 +350,11 @@ class _MyHomePageState extends State<MyHomePage> {
               height: 50,
               child: ElevatedButton(
                 onPressed: () async {
-                  await _signInWithGoogle();
+                  if (kIsWeb) {
+                    await _signInWithGoogleWeb(context);
+                  } else {
+                    await _signInWithGoogle(context);
+                  }
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => MainNavigationPage()),
