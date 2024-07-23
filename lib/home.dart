@@ -6,12 +6,20 @@ import 'package:firebase_auth_platform_interface/firebase_auth_platform_interfac
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
+import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'notification.dart';
-import 'security_code_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_auth_platform_interface/firebase_auth_platform_interface.dart';
+import 'package:eco_connect/globalstate.dart';
+import 'package:eco_connect/all_listings_page.dart';
+import 'package:eco_connect/main_navigation.dart';
+import 'package:eco_connect/set_name_pfp.dart';
+import 'notification.dart';
+import 'security_code_screen.dart';
 import 'package:eco_connect/map_screen.dart';
 //import 'package:google_sign_in/google_sign_in_web.dart' as gsi_web;
 
@@ -23,7 +31,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final TextEditingController _phoneController = TextEditingController();  // Controller for the phone number input
+  final TextEditingController _phoneController =
+  TextEditingController(); // Controller for the phone number input
   bool emailsuccess = false;
   late RecaptchaVerifier recaptchaVerifier;
 
@@ -48,13 +57,17 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
 
-  Future<UserCredential> signInWithEmailAndPassword(String email, String password) async {
-    return await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
+
+  Future<UserCredential> signInWithEmailAndPassword(
+      String email, String password) async {
+    return await FirebaseAuth.instance
+        .signInWithEmailAndPassword(email: email, password: password);
   }
 
   Future<void> _signInWithEmailAndPassword(String email, String password) async {
     try {
-      UserCredential userCredential = await signInWithEmailAndPassword(email, password);
+      UserCredential userCredential = await signInWithEmailAndPassword(
+          email, password);
       print('Email/Password Sign-In successful: ${userCredential.user}');
       emailsuccess = true;
       //_promptForPhoneVerification();
@@ -73,7 +86,8 @@ class _MyHomePageState extends State<MyHomePage> {
       context: context,
       builder: (context) {
         final TextEditingController _emailController = TextEditingController();
-        final TextEditingController _passwordController = TextEditingController();
+        final TextEditingController _passwordController =
+        TextEditingController();
 
         return AlertDialog(
           title: Text('Sign In with Email/Password'),
@@ -106,7 +120,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 if (emailsuccess) {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => MainNavigationPage()),
+                    MaterialPageRoute(
+                        builder: (context) => MainNavigationPage()),
                   );
                 }
               },
@@ -220,7 +235,8 @@ class _MyHomePageState extends State<MyHomePage> {
           // Handle successful sign-in (navigate to a different screen, etc.)
           print('Verification completed automatically');
           Provider.of<UserState>(context, listen: false).setPhone(phone);
-          Provider.of<UserState>(context, listen: false).setSignInTime(DateTime.now());
+          Provider.of<UserState>(context, listen: false)
+              .setSignInTime(DateTime.now());
         },
         verificationFailed: (FirebaseAuthException e) {
           // Verification failed, handle error (invalid number, quota exceeded, etc.)
@@ -252,148 +268,142 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        color: const Color(0xFF121212), // Set background color to dark grey
-        alignment: Alignment.center,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            RichText(
-              text: TextSpan(
-                children: [
-                  TextSpan(
-                    text: 'ECO',
-                    style: TextStyle(
-                      fontSize: 100, // Adjust the size as needed
-                      fontWeight: FontWeight.bold,
-                      color: const Color(0xFF1DB954), // Set text color
-                    ),
-                  ),
-                  TextSpan(
-                    text: 'CONNECT',
-                    style: TextStyle(
-                      fontSize: 100, // Adjust the size as needed
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white, // Set CONNECT text to white
-                    ),
-                  ),
-                ],
+      body: Stack(
+        children: [
+          // Background image container
+          Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/bg.jpg'), // Replace with your image path
+                fit: BoxFit.cover,
               ),
             ),
-            const SizedBox(height: 20),
-            Image.asset(
-              'assets/images/elogo.png',
-              height: 100,
-              width: 100,
-              fit: BoxFit.contain, // Adjust the fit as needed
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5), // Adjust the blur intensity as needed
+              child: Container(
+                color: Colors.black.withOpacity(0.3), // Adjust the opacity as needed
+              ),
             ),
-            SizedBox(height: 20),
-            Container(
-              width: 640,
-              child: TextField(
-                controller: _phoneController,
-                decoration: InputDecoration(
-                  hintText: 'Enter your phone number',  // Display as a hint, not as a floating label
-                  border: OutlineInputBorder(),
-                  fillColor: Colors.white,
-                  filled: true,
+          ),
+          // Main content
+          Container(
+            color: Colors.transparent, // Make the background transparent
+            alignment: Alignment.center,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset(
+                  'assets/images/title.png',
+                  height: 200,
+                  width: 600,
+                  fit: BoxFit.contain,
                 ),
-                keyboardType: TextInputType.phone,
-              ),
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              'We will send you a one time code to get started',
-              style: TextStyle(
-                color: Color(0xFFB3B3B3),
-              ),
-            ),
-            SizedBox(
-              width: 640,
-              height: 50,
-              child: ElevatedButton(
-                onPressed: () {
-                  String phone = _phoneController.text.replaceAll(RegExp(r'\D'), ''); // Remove non-digit characters for pure number validation
-                  if (phone.length == 10) {
-                    String phoneWithCode = '+1$phone';
-                    verifyPhoneNumber(phoneWithCode);
-                    //Navigator.push(
-                    //context,
-                    //MaterialPageRoute(builder: (context) => SecurityCodeScreen(verificationId: '',)),
-                    //);// If exactly 10 digits, proceed to write to Firebase
-                  } else {
-                    // Show an error if not 10 digits
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: const Text('The phone number must be 10 digits'),
-                        backgroundColor: Colors.red,
+                const SizedBox(height: 10),
+                Container(
+                  width: 640,
+                  child: TextField(
+                    controller: _phoneController,
+                    decoration: InputDecoration(
+                      hintText: 'Enter your phone number', // Display as a hint, not as a floating label
+                      border: OutlineInputBorder(),
+                      fillColor: Colors.white,
+                      filled: true,
+                    ),
+                    keyboardType: TextInputType.phone,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  'We will send you a one-time code to get started',
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+                SizedBox(
+                  width: 640,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      String phone = _phoneController.text
+                          .replaceAll(RegExp(r'\D'), ''); // Remove non-digit characters for pure number validation
+                      if (phone.length == 10) {
+                        String phoneWithCode = '+1$phone';
+                        verifyPhoneNumber(phoneWithCode);
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(builder: (context) => SecurityCodeScreen(verificationId: '',)),
+                        // ); If exactly 10 digits, proceed to write to Firebase
+                      } else {
+                        // Show an error if not 10 digits
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text('The phone number must be 10 digits'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFF1DB954), // Green color for the button
+                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5.0), // More rectangular, less rounded
                       ),
-                    );
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF1DB954), // Green color for the button
-                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5.0), // More rectangular, less rounded
+                    ),
+                    child: const Text(
+                      'Continue',
+                      style: TextStyle(fontSize: 18, color: Colors.white),
+                    ),
                   ),
                 ),
-                child: const Text(
-                  'Continue',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: 640,
-              height: 50,
-              child: ElevatedButton(
-                onPressed: () async {
-                  if (kIsWeb) {
-                    await _signInWithGoogleWeb(context);
-                  } else {
-                    await _signInWithGoogle(context);
-                  }
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => MainNavigationPage()),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF1DB954), // Green color for the button
-                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5.0), // More rectangular, less rounded
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: 640,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      if (kIsWeb) {
+                        await _signInWithGoogleWeb(context);
+                      } else {
+                        await _signInWithGoogle(context);
+                      }
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => MainNavigationPage()),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFF1DB954), // Green color for the button
+                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5.0), // More rectangular, less rounded
+                      ),
+                    ),
+                    child: const Text(
+                      'Sign In with Google',
+                      style: TextStyle(fontSize: 18, color: Colors.white),
+                    ),
                   ),
                 ),
-                child: const Text(
-                  'Sign In with Google',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: _showEmailPasswordSignInDialog,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFF1DB954), // Green color for the button
+                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5.0), // More rectangular, less rounded
+                    ),
+                  ),
+                  child: const Text(
+                    'Sign In with Email/Password',
+                    style: TextStyle(fontSize: 18, color: Colors.white),
+                  ),
                 ),
-              ),
+              ],
             ),
-
-
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _showEmailPasswordSignInDialog,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF1DB954), // Green color for the button
-                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5.0), // More rectangular, less rounded
-                ),
-              ),
-              child: const Text(
-                'Sign In with Email/Password',
-                style: TextStyle(fontSize: 18, color: Colors.white),
-              ),
-            ),
-
-
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
