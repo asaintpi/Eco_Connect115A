@@ -20,6 +20,7 @@ class AllListingsPage extends StatefulWidget {
 class _AllListingsPageState extends State<AllListingsPage> {
   int _tagSelection = 0;
   bool _locationPermissionAsked = false; // State variable to track if the dialog has been shown
+  Key _key = UniqueKey();
   final firebaseMessaging = FirebaseMessaging.instance;
   final NotificationService _notificationService = NotificationService();
 
@@ -151,6 +152,7 @@ class _AllListingsPageState extends State<AllListingsPage> {
                           if (_tagSelection == index) {//unselect category to show all
                             setState(() {
                               _tagSelection = 0;
+                              _key = UniqueKey();
                             });
                           }
                           else if (index != 0 && index != 1) {
@@ -203,9 +205,11 @@ class _AllListingsPageState extends State<AllListingsPage> {
                 style: TextStyle(fontSize: 18, color: Colors.white),
               ),
             ),
+            SizedBox(height: 15),
             Expanded(
               child: FirebaseAnimatedList(
                   query: database,
+                  key: _key,
                   itemBuilder: (BuildContext context, DataSnapshot snapshot,
                       Animation<double> animation, int index) {
                     String postKey = snapshot.key.toString();
