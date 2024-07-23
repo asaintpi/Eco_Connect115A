@@ -1,4 +1,5 @@
 import 'package:eco_connect/chat.dart';
+import 'package:eco_connect/main_navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -172,7 +173,7 @@ class _SetNameAndPfpPageState extends State<SetNameAndPfpPage> {
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => AllListingsPage()),
+                              builder: (context) => MainNavigationPage()),
                         );
                       }).catchError((error) {
                         ScaffoldMessenger.of(context).showSnackBar(
