@@ -48,6 +48,8 @@ class _SetNameAndPfpPageState extends State<SetNameAndPfpPage> {
     }
   }
 
+
+
   Future<void> writeUserData(String phone, String email, String name,
       String description) async {
     final database = FirebaseDatabase.instance.ref();
