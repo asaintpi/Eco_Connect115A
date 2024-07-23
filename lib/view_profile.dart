@@ -90,9 +90,28 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF212121),
         iconTheme: IconThemeData(color: const Color(0xFFB3B3B3)),
-        title: Text(
-          'Profile - ${widget.otherUserPhone}',
-          style: TextStyle(color: const Color(0xFFB3B3B3)),
+        title: Row(
+          children: [
+            Text(
+              'Profile - ${widget.otherUserPhone}',
+              style: TextStyle(color: const Color(0xFFB3B3B3)),
+            ),
+            SizedBox(width: 10),
+            GestureDetector(
+              onTap: () {
+                _reportUser(widget.otherUserPhone);
+              },
+              child: CircleAvatar(
+                radius: 15,
+                backgroundColor: Colors.red,
+                child: Icon(
+                  Icons.flag,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
       backgroundColor: const Color(0xFF121212),
@@ -142,6 +161,11 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
         ),
       ),
     );
+  }
+
+  void _reportUser(String userPhone) {
+    // TODO: Implement user reporting functionality
+    print('Reported user: $userPhone');
   }
 }
 
