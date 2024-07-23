@@ -3,145 +3,140 @@ import 'package:flutter/material.dart';
 import 'chat.dart';
 
 class PostListing extends StatefulWidget {
+  const PostListing({Key? key, required this.post, required this.postKey}) : super(key: key);
 
-  const PostListing({super.key, required Map this.post, required String this.postKey});
   final Map post;
   final String postKey;
 
-
   @override
-  _PostListingState createState() => _PostListingState(post: post, postKey: postKey);
+  _PostListingState createState() => _PostListingState();
 }
 
 class _PostListingState extends State<PostListing> {
-  _PostListingState({required Map this.post, required String this.postKey});
-  Map post;
-  String postKey;
+  late Map post;
+  late String postKey;
 
-
+  @override
+  void initState() {
+    super.initState();
+    post = widget.post;
+    postKey = widget.postKey;
+  }
 
   @override
   Widget build(BuildContext context) {
-
-    return  Container(
+    return Container(
       padding: const EdgeInsets.all(15),
       child: GestureDetector(
         onTap: () {
           Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) =>
-                  ViewPost(post: post, postKey: postKey),
-              )
+            context,
+            MaterialPageRoute(
+              builder: (context) => ViewPost(post: post, postKey: postKey),
+            ),
           );
         },
-        child: Card (
-          color: Color(0xFF212121),
-
+        child: Card(
+          color: const Color(0xFF212121),
           child: Stack(
-          children: [
-            Column(
-              children: [
-                const SizedBox(height: 20,),
-                Row(
+            children: [
+              Column(
+                children: [
+                  const SizedBox(height: 20),
+                  Row(
                     children: [
-                      const SizedBox(width: 25,),
+                      const SizedBox(width: 25),
                       CircleAvatar(
                         radius: 15,
                         backgroundColor: Colors.grey[400],
-                        // Set the circle color to a shade of grey
                         child: const Icon(
                           Icons.person,
                           size: 15,
                           color: Colors.white,
                         ),
                       ),
-                      const SizedBox(width: 20, height: 20,),
-                      Text(post['author'],
+                      const SizedBox(width: 20),
+                      Text(
+                        post['author'],
                         style: const TextStyle(
-                          color: Color(0xFFB3B3B3),),
+                          color: Color(0xFFB3B3B3),
+                        ),
                         textAlign: TextAlign.left,
                       ),
-                    ]
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  children: [
-                    const SizedBox(height: 20, width: 20),
-                    Text(post['title'] + '\n',
-                      style: const TextStyle(
-                        color: Color(0xFFB3B3B3),),
-                    ),
-                  ],
-                ),
-                Text(post['body'],
-                  style: const TextStyle(color: Color(0xFFB3B3B3),),
-                ),
-                SizedBox(height: 30),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 110,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) =>
-                                ChatPage(
-                                  otherUserPhone: post['personal id'],)),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF1DB954),
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 20),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5.0),
-                          ),
-                        ),
-                        child: const Text(
-                          'Message',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      const SizedBox(width: 20),
+                      Expanded(
+                        child: Text(
+                          post['title'] + '\n',
+                          style: const TextStyle(
+                            color: Color(0xFFB3B3B3),
                           ),
                         ),
                       ),
+                    ],
+                  ),
+                  Text(
+                    post['body'],
+                    style: const TextStyle(color: Color(0xFFB3B3B3)),
+                  ),
+                  const SizedBox(height: 30),
+                ],
+              ),
+              Positioned(
+                top: 10,
+                right: 10,
+                child: GestureDetector(
+                  onTap: () {
+                    _reportPost(post);
+                  },
+                  child: CircleAvatar(
+                    radius: 15,
+                    backgroundColor: Colors.red,
+                    child: const Icon(
+                      Icons.flag,
+                      color: Colors.white,
+                      size: 20,
                     ),
-                  ],
-                ),
-                const SizedBox(height: 20, width: 20),
-              ],
-            ),
-            Positioned(
-              top: 10,
-              right: 10,
-              child: GestureDetector(
-                onTap: () {
-                  _reportPost(post);
-                },
-                child: CircleAvatar(
-                  radius: 15,
-                  backgroundColor: Colors.red,
-                  child: Icon(
-                    Icons.flag,
-                    color: Colors.white,
-                    size: 20,
                   ),
                 ),
               ),
-            ),
-          ],
-        ),
+              Positioned(
+                top: 10,
+                right: 60, // Adjust the position as needed
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ChatPage(
+                          otherUserPhone: post['personal id'],
+                        ),
+                      ),
+                    );
+                  },
+                  child: CircleAvatar(
+                    radius: 15,
+                    backgroundColor: const Color(0xFF1DB954),
+                    child: const Icon(
+                      Icons.message,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-
     );
   }
-
 
   void _reportPost(Map post) {
     print('Reported post: ${post['key']}');
   }
-
 }
