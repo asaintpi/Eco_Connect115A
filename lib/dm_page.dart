@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:provider/provider.dart';
 import 'chat.dart';
-import 'globalstate.dart'; // Import your ChatPage widget
+import 'globalstate.dart';
 
 class DMPage extends StatelessWidget {
   final DatabaseReference databaseReference = FirebaseDatabase.instance.ref();
@@ -16,14 +16,14 @@ class DMPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFF212121), // Updated AppBar color
-        iconTheme: IconThemeData(color: const Color(0xFFB3B3B3)), // Set back arrow color
+        backgroundColor: const Color(0xFF212121),
+        iconTheme: IconThemeData(color: const Color(0xFFB3B3B3)),
         title: Text(
           'Direct Messages',
-          style: TextStyle(color: const Color(0xFFB3B3B3)), // Set text color
+          style: TextStyle(color: const Color(0xFFB3B3B3)),
         ),
       ),
-      backgroundColor: const Color(0xFF121212), // Dark grey background
+      backgroundColor: const Color(0xFF121212),
       body: StreamBuilder<DatabaseEvent>(
         stream: databaseReference.child('chats').onValue,
         builder: (BuildContext context, AsyncSnapshot<DatabaseEvent> snapshot) {
@@ -66,14 +66,41 @@ class DMPage extends StatelessWidget {
               itemBuilder: (context, index) {
                 final message = messages[index];
 
+                AssetImage placeholderImage = AssetImage('assets/images/elogo.png');
+
+                // Convert integer timestamp to DateTime object
+                DateTime sentTime = DateTime.fromMillisecondsSinceEpoch(message['timestamp']); // Assuming 'timestamp' is an integer timestamp
+
                 return ListTile(
-                  title: Text(
-                    message['sender_phone'] ?? 'Unknown Sender',
-                    style: TextStyle(color: const Color(0xFFB3B3B3)), // Sender text color
+                  contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  leading: CircleAvatar(
+                    backgroundImage: placeholderImage,
                   ),
-                  subtitle: Text(
-                    message['message'] ?? 'No message',
-                    style: TextStyle(color: Colors.white), // Message text color
+                  title: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        message['sender_phone'] ?? 'Unknown Sender',
+                        style: TextStyle(color: const Color(0xFFB3B3B3)), // Sender text color
+                      ),
+                      SizedBox(height: 4),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              message['message'] ?? 'No message',
+                              style: TextStyle(color: Colors.white), // Message text color
+                            ),
+                          ),
+                          SizedBox(width: 8),
+                          Text(
+                            '${sentTime.hour}:${sentTime.minute}',
+                            style: TextStyle(color: Colors.grey), // Time text color
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                   onTap: () {
                     Navigator.push(
