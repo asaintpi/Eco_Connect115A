@@ -272,7 +272,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            /*const SizedBox(height: 20),
             SizedBox(
               width: 640,
               height: 50,
@@ -297,6 +297,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
             ),
+            */
+
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _showEmailPasswordSignInDialog,
