@@ -114,7 +114,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 if (emailsuccess) {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => AllListingsPage()),
+                    MaterialPageRoute(builder: (context) => MainNavigationPage()),
                   );
                 }
               },
