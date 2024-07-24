@@ -12,6 +12,19 @@ class DMPage extends StatelessWidget {
     currentUserPhone = Provider.of<UserState>(context, listen: false).phone;
   }
 
+  Future<String> getNameByPhone(String phone) async {
+    final snapshot = await databaseReference.child('users').orderByChild('phone').equalTo(phone).get();
+    if (snapshot.exists && snapshot.value is Map) {
+      final userMap = Map<String, dynamic>.from(snapshot.value as Map);
+      if (userMap.isNotEmpty) {
+        final userKey = userMap.keys.first; // Get the first user's key
+        final userData = userMap[userKey] as Map;
+        return userData['name'] ?? 'Unknown Sender';
+      }
+    }
+    return 'Unknown Sender';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -71,43 +84,70 @@ class DMPage extends StatelessWidget {
                 // Convert integer timestamp to DateTime object
                 DateTime sentTime = DateTime.fromMillisecondsSinceEpoch(message['timestamp']); // Assuming 'timestamp' is an integer timestamp
 
-                return ListTile(
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                  leading: CircleAvatar(
-                    backgroundImage: placeholderImage,
-                  ),
-                  title: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        message['sender_phone'] ?? 'Unknown Sender',
-                        style: TextStyle(color: const Color(0xFFB3B3B3)), // Sender text color
+                return FutureBuilder<String>(
+                  future: getNameByPhone(message['sender_phone'] ?? 'Unknown Sender'),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return ListTile(
+                        contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                        leading: CircleAvatar(
+                          backgroundImage: placeholderImage,
+                        ),
+                        title: Text('Loading...', style: TextStyle(color: const Color(0xFFB3B3B3))),
+                      );
+                    }
+
+                    if (snapshot.hasError) {
+                      return ListTile(
+                        contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                        leading: CircleAvatar(
+                          backgroundImage: placeholderImage,
+                        ),
+                        title: Text('Error', style: TextStyle(color: const Color(0xFFB3B3B3))),
+                      );
+                    }
+
+                    final senderName = snapshot.data ?? 'Unknown Sender';
+
+                    return ListTile(
+                      contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                      leading: CircleAvatar(
+                        backgroundImage: placeholderImage,
                       ),
-                      SizedBox(height: 4),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      title: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Flexible(
-                            child: Text(
-                              message['message'] ?? 'No message',
-                              style: TextStyle(color: Colors.white), // Message text color
-                            ),
-                          ),
-                          SizedBox(width: 8),
                           Text(
-                            '${sentTime.hour}:${sentTime.minute}',
-                            style: TextStyle(color: Colors.grey), // Time text color
+                            senderName,
+                            style: TextStyle(color: const Color(0xFFB3B3B3)), // Sender text color
+                          ),
+                          SizedBox(height: 4),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  message['message'] ?? 'No message',
+                                  style: TextStyle(color: Colors.white), // Message text color
+                                ),
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                '${sentTime.hour}:${sentTime.minute}',
+                                style: TextStyle(color: Colors.grey), // Time text color
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                    ],
-                  ),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ChatPage(otherUserPhone: message['sender_phone'] ?? 'Unknown Sender'),
-                      ),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ChatPage(otherUserPhone: message['sender_phone'] ?? 'Unknown Sender'),
+                          ),
+                        );
+                      },
                     );
                   },
                 );
@@ -121,3 +161,4 @@ class DMPage extends StatelessWidget {
     );
   }
 }
+
