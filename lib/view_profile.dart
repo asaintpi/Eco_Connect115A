@@ -1,21 +1,147 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import 'globalstate.dart';
+
 
 class ViewProfilePage extends StatefulWidget {
-
-  ViewProfilePage({required String this.otherUserPhone});
   final String otherUserPhone;
 
+  ViewProfilePage({required this.otherUserPhone});
+
   @override
-  _ViewProfilePageState createState() => _ViewProfilePageState(this.otherUserPhone);
+  _ViewProfilePageState createState() => _ViewProfilePageState();
 }
 
 class _ViewProfilePageState extends State<ViewProfilePage> {
-  _ViewProfilePageState(String this.otherUserPhone);
-  double? userRating; // Nullable to handle loading or absence of data
-  int? numberOfRatings; // Nullable to handle loading or absence of data
-  final String otherUserPhone;
+  String userName = 'Loading...';
+  String userPhone = 'Loading...';
+  double? userRating;
+  int? numberOfRatings;
+  String userEmail = 'Loading...';
+  String profileImageUrl = '';
 
+  @override
+  void initState() {
+    super.initState();
+    if (widget.otherUserPhone == '1111111111') {
+      getUserDataByEmail();
+    } else {
+      getUserDataByPhone();
+    }
+  }
 
+  Future<void> getUserDataByEmail() async {
+    final database = FirebaseDatabase.instance.ref();
+    final email = Provider.of<UserState>(context, listen: false).email;
+
+    try {
+      if (email.isNotEmpty) {
+        final event = await database.child('users')
+            .orderByChild('email')
+            .equalTo(email)
+            .once();
+
+        final snapshot = event.snapshot;
+
+        if (snapshot.value != null) {
+          final Map<String, dynamic> userData = Map<String, dynamic>.from(snapshot.value as Map);
+
+          userData.forEach((key, value) {
+            final user = Map<String, dynamic>.from(value);
+            print('User found: $user');
+            setState(() {
+              userName = user['name'];
+              //userPhone = user['phone'];
+              //userEmail = user['email'];
+              profileImageUrl = user['profileImageUrl'];
+              userRating = user['rating']?.toDouble() ?? 0.0;
+              numberOfRatings = user['numberOfRatings']?.toInt() ?? 0;
+            });
+          });
+        } else {
+          print('No user found with the email: $email');
+        }
+      } else {
+        print('Email is not available or empty.');
+      }
+    } on FirebaseException catch (e) {
+      print('Error retrieving data: $e');
+    }
+  }
+
+  Future<void> getUserDataByPhone() async {
+    final database = FirebaseDatabase.instance.ref();
+    final phone = widget.otherUserPhone;
+
+    try {
+      final event = await database.child('users')
+          .orderByChild('phone')
+          .equalTo(phone)
+          .once();
+
+      final snapshot = event.snapshot;
+
+      if (snapshot.value != null) {
+        final Map<String, dynamic> userData = Map<String, dynamic>.from(snapshot.value as Map);
+        userData.forEach((key, value) {
+          final user = Map<String, dynamic>.from(value);
+          print('User found: $user');
+          setState(() {
+            userName = user['name'];
+            userPhone = user['phone'];
+            userEmail = user['email'];
+            profileImageUrl = user['profileImageUrl'];
+            userRating = user['rating']?.toDouble() ?? 0.0;
+            numberOfRatings = user['numberOfRatings']?.toInt() ?? 0;
+          });
+        });
+      } else {
+        print('No user found with the phone number: $phone');
+        if (phone == '1111111111') {
+          getUserDataByEmail();
+        }
+      }
+    } on FirebaseException catch (e) {
+      print('Error retrieving data: $e');
+    }
+  }
+
+  Future<void> saveRating(double rating) async {
+    final database = FirebaseDatabase.instance.ref();
+    final phone = widget.otherUserPhone;
+
+    try {
+      final event = await database.child('users').orderByChild('phone').equalTo(phone).once();
+      final snapshot = event.snapshot;
+
+      if (snapshot.value != null) {
+        final userData = Map<String, dynamic>.from(snapshot.value as Map);
+        userData.forEach((key, value) async {
+          final user = Map<String, dynamic>.from(value);
+          final currentRating = user['rating']?.toDouble() ?? 0.0;
+          final currentNumberOfRatings = user['numberOfRatings']?.toInt() ?? 0;
+
+          final newRating = (currentRating * currentNumberOfRatings + rating) / (currentNumberOfRatings + 1);
+          final newNumberOfRatings = currentNumberOfRatings + 1;
+
+          await database.child('users/$key').update({
+            'rating': newRating,
+            'numberOfRatings': newNumberOfRatings,
+          });
+
+          setState(() {
+            userRating = newRating;
+            numberOfRatings = newNumberOfRatings;
+          });
+        });
+      }
+    } on FirebaseException catch (e) {
+      print('Error saving rating: $e');
+    }
+  }
 
   void _showRatingDialog() {
     showDialog(
@@ -23,7 +149,7 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
       builder: (BuildContext context) {
         double rating = 0;
         return AlertDialog(
-          title: Text('Rate ${widget.otherUserPhone}'),
+          title: Text('Rate $userName'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -41,11 +167,7 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
             TextButton(
               child: Text('Submit'),
               onPressed: () {
-                // TODO: Implement logic to submit rating to backend
-                setState(() {
-                  userRating = rating;
-                  numberOfRatings = (numberOfRatings ?? 0) + 1;
-                });
+                saveRating(rating);
                 Navigator.of(context).pop();
               },
             ),
@@ -61,6 +183,41 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
     );
   }
 
+  Future<void> updateUserRating(double rating) async {
+    final database = FirebaseDatabase.instance.ref();
+
+    DataSnapshot snapshot;
+    if (widget.otherUserPhone == '1111111111') {
+      final email = Provider.of<UserState>(context, listen: false).email;
+      final query = database.child('users').orderByChild('email').equalTo(email).limitToFirst(1);
+      final result = await query.once();
+      snapshot = result.snapshot;
+    } else {
+      final query = database.child('users').orderByChild('phone').equalTo(widget.otherUserPhone).limitToFirst(1);
+      final result = await query.once();
+      snapshot = result.snapshot;
+    }
+
+    if (snapshot.value != null) {
+      Map<String, dynamic> userData = Map<String, dynamic>.from(snapshot.value as Map);
+      int currentRatings = userData['numberOfRatings'] ?? 0;
+      double currentRating = userData['rating']?.toDouble() ?? 0.0;
+
+      double newRating = ((currentRating * currentRatings) + rating) / (currentRatings + 1);
+      int newNumberOfRatings = currentRatings + 1;
+
+      database.child('users').child(snapshot.key!).update({
+        'rating': newRating,
+        'numberOfRatings': newNumberOfRatings,
+      });
+
+      setState(() {
+        userRating = newRating;
+        numberOfRatings = newNumberOfRatings;
+      });
+    }
+  }
+
   Widget _buildStarRating(double? rating) {
     if (rating == null) {
       return Text('Rating: N/A', style: TextStyle(color: Colors.white));
@@ -70,17 +227,14 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
     bool hasHalfStar = (rating - fullStars) > 0.5;
     List<Widget> stars = [];
 
-    // Full stars
     for (int i = 0; i < fullStars; i++) {
       stars.add(Icon(Icons.star, color: Colors.yellow));
     }
 
-    // Half star if applicable
     if (hasHalfStar) {
       stars.add(Icon(Icons.star_half, color: Colors.yellow));
     }
 
-    // Empty stars to fill the row (if needed)
     while (stars.length < 5) {
       stars.add(Icon(Icons.star_border, color: Colors.yellow));
     }
@@ -95,13 +249,13 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
         backgroundColor: const Color(0xFF212121),
         iconTheme: IconThemeData(color: const Color(0xFFB3B3B3)),
         title: Text(
-          'Profile - ${widget.otherUserPhone}',
+          'Profile - $userName',
           style: TextStyle(color: const Color(0xFFB3B3B3)),
         ),
         actions: [
           GestureDetector(
             onTap: () {
-              _reportUser(widget.otherUserPhone);
+              _reportUser(userPhone);
             },
             child: Padding(
               padding: const EdgeInsets.all(8.0),
@@ -120,29 +274,41 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center, // Center content vertically
+          mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Center(
               child: CircleAvatar(
                 radius: 50,
-                backgroundImage: AssetImage('assets/images/elogo.png'), // Placeholder image
+                backgroundImage: profileImageUrl.isNotEmpty
+                    ? NetworkImage(profileImageUrl) as ImageProvider<Object>
+                    : AssetImage('assets/images/elogo.png') as ImageProvider<Object>, // Placeholder image
               ),
             ),
             SizedBox(height: 20),
             Center(
               child: Text(
-                'Username: ${userRating != null ? 'Jane Doe' : 'Loading...'}', // Placeholder or loading text
+                'Username: $userName',
                 style: TextStyle(color: Colors.white, fontSize: 18),
               ),
             ),
+            /*
             SizedBox(height: 10),
             Center(
               child: Text(
-                'Phone: ${widget.otherUserPhone}', // Display the user's phone number
+                'Phone: $userPhone',
                 style: TextStyle(color: Colors.white),
               ),
             ),
+
+            SizedBox(height: 10),
+            Center(
+              child: Text(
+                'Email: $userEmail',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+            */
             SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -154,7 +320,7 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
                 _buildStarRating(userRating),
                 SizedBox(width: 10),
                 Text(
-                  '(${numberOfRatings ?? 'Loading...'})', // Placeholder or loading text
+                  '(${numberOfRatings ?? 'Loading...'})',
                   style: TextStyle(color: Colors.white),
                 ),
               ],
@@ -165,7 +331,7 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
                 onPressed: _showRatingDialog,
                 style: ButtonStyle(
                   backgroundColor:
-                  MaterialStateProperty.all<Color>(const Color(0xFF1DB954)),
+                  MaterialStateProperty.all<Color>(const Color(0xFF1E88E5)),
                 ),
                 child: Text('Rate User'),
               ),
