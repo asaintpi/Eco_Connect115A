@@ -29,13 +29,16 @@ class _SearchUsersPageState extends State<SearchUsersPage> {
                   child: Row(
                     children: [
                       const SizedBox(width: 20, height: 20,),
+                      User['profileImageUrl'] != null?
                       CircleAvatar(
-                        radius: 15,
+                        radius: 20,
                         backgroundColor: Colors.grey[400],
-                        // Set the circle color to a shade of grey
-                        child: const Icon(
+                        backgroundImage: NetworkImage(User['profileImageUrl']),
+                      ):
+                      const CircleAvatar (
+                        child: Icon(
                           Icons.person,
-                          size: 15,
+                          size: 20,
                           color: Colors.white,
                         ),
                       ),

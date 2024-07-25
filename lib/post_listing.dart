@@ -1,4 +1,9 @@
+import 'dart:typed_data';
+
 import 'package:eco_connect/view_post.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'chat.dart';
 
@@ -25,6 +30,9 @@ class _PostListingState extends State<PostListing> {
 
   @override
   Widget build(BuildContext context) {
+
+
+
     return Container(
       padding: const EdgeInsets.all(15),
       child: GestureDetector(
@@ -46,15 +54,19 @@ class _PostListingState extends State<PostListing> {
                   Row(
                     children: [
                       const SizedBox(width: 25),
-                      CircleAvatar(
-                        radius: 15,
+                      post['profileImageUrl'] != null?
+                       CircleAvatar(
+                        radius: 20,
                         backgroundColor: Colors.grey[400],
-                        child: const Icon(
-                          Icons.person,
-                          size: 15,
-                          color: Colors.white,
-                        ),
-                      ),
+                        backgroundImage: NetworkImage(post['profileImageUrl']),
+                      ):
+                           const CircleAvatar (
+                             child: Icon(
+                               Icons.person,
+                               size: 20,
+                               color: Colors.white,
+                             ),
+                           ),
                       const SizedBox(width: 20),
                       Text(
                         post['author'],

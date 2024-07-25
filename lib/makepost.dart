@@ -8,8 +8,8 @@ import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
-import '../../globalstate.dart';
-import '../../main.dart';
+import 'globalstate.dart';
+import 'main.dart';
 
 class MyMakePostPage extends StatefulWidget {
   const MyMakePostPage({Key? key}) : super(key: key);
@@ -38,6 +38,7 @@ class _MyMakePostPageState extends State<MyMakePostPage> {
   Uint8List? _webImage;
   String? _imagePath;
   String name = "";
+  String? profileUrl;
 
 
   void initState() {
@@ -56,6 +57,7 @@ class _MyMakePostPageState extends State<MyMakePostPage> {
       final user = userData[userKey];
       setState(() {
         name = user['name'] ?? 'No name';
+        profileUrl = user['profileImageUrl'];
       });
     } else {
       setState(() {
@@ -67,7 +69,7 @@ class _MyMakePostPageState extends State<MyMakePostPage> {
 
 
   Future<void> writePost({required String author, required String title, required String body,
-    required String service}) async {
+    required String service,}) async {
     // get post location
     List position = await determinePosition();
     // gets the UTC time and date at the moment of post
@@ -80,6 +82,7 @@ class _MyMakePostPageState extends State<MyMakePostPage> {
     final Map<String, dynamic> post = {
       'author': author,
       'personal id': Provider.of<UserState>(context, listen: false).phone,
+      'profileImageUrl': profileUrl,
       'title' : title,
       'body' : body,
       'time' : now.toString(),

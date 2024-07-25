@@ -1,3 +1,6 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
@@ -34,13 +37,14 @@ class _MapPageState extends State<MapPage> {
 
   Future<void> _loadPosts(Position position) async {
     // Replace with your API endpoint
-    final response = await http.get(Uri.parse('YOUR_API_ENDPOINT'));
+    final response = await http.get(Uri.parse('https://ecoconnect-d26ca-default-rtdb.firebaseio.com'));
     if (response.statusCode == 200) {
       setState(() {
         posts = json.decode(response.body);
         _updateMarkers();
       });
     }
+
   }
 
   void _updateMarkers() {
