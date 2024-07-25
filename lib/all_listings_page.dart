@@ -1,4 +1,4 @@
-import 'package:eco_connect/Pages/MakePost/makepost.dart';
+import 'package:eco_connect/makepost.dart';
 import 'package:eco_connect/post_listing.dart';
 import 'package:eco_connect/search_users.dart';
 import 'package:firebase_database/firebase_database.dart';

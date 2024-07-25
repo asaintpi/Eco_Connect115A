@@ -30,6 +30,7 @@ class _ViewPostState extends State<ViewPost> {
 
   Future<void> writeComment({required String reply, }) async {
     String name = '';
+    String? profileUrl;
     final commentDatabase = FirebaseDatabase.instance.ref('posts/'+postKey);
 
     final String phoneNumber = Provider.of<UserState>(context, listen: false).phone;
@@ -40,6 +41,7 @@ class _ViewPostState extends State<ViewPost> {
       final userKey = userData.keys.first;
       final user = userData[userKey];
       name = user['name'] ?? 'No name';
+      profileUrl = user['profileImageUrl'];
     } else {
       name = 'No user found';
     }
@@ -48,6 +50,7 @@ class _ViewPostState extends State<ViewPost> {
       'author': name,
       'postID': post['time'],
       'contents': reply,
+      'profileImageUrl': profileUrl,
     };
     try {
       // Push data to the 'comments' node with a unique key

@@ -32,16 +32,19 @@ class _CommentListingState  extends State<CommentListing> {
                   Row(
                       children: [
                           const SizedBox(width: 15,),
-                          CircleAvatar(
-                            radius: 10,
-                            backgroundColor: Colors.grey[400],
-                            // Set the circle color to a shade of grey
-                            child: const Icon(
-                              Icons.person,
-                              size: 10,
-                              color: Colors.white,
-                            ),
+                        comment['profileImageUrl'] != null?
+                        CircleAvatar(
+                          radius: 20,
+                          backgroundColor: Colors.grey[400],
+                          backgroundImage: NetworkImage(comment['profileImageUrl']),
+                        ):
+                        const CircleAvatar (
+                          child: Icon(
+                            Icons.person,
+                            size: 20,
+                            color: Colors.white,
                           ),
+                        ),
                           SizedBox(width: 10,),
                           Text(comment['author'],
                             style: const TextStyle(
