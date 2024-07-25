@@ -11,6 +11,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import 'security_code_screen.dart';
 
+// First page in app, prompts for user log-in
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
 
@@ -27,7 +28,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    recaptchaVerifier = RecaptchaVerifier(
+    recaptchaVerifier = RecaptchaVerifier(  // Recaptcha instance
       auth: FirebaseAuthPlatform.instance,
       container: null,
       size: RecaptchaVerifierSize.normal,
@@ -44,8 +45,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-
-
+  // User can sign-in with email and password
   Future<UserCredential> signInWithEmailAndPassword(
       String email, String password) async {
     return await FirebaseAuth.instance
@@ -58,7 +58,6 @@ class _MyHomePageState extends State<MyHomePage> {
           email, password);
       print('Email/Password Sign-In successful: ${userCredential.user}');
       emailsuccess = true;
-      //_promptForPhoneVerification();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -69,6 +68,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  // Pop up will show up for signing in with email/pass
   void _showEmailPasswordSignInDialog() {
     showDialog(
       context: context,
@@ -121,6 +121,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  // Firebase Google sign-in option for users
   Future<UserCredential> signInWithGoogle() async {
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
     final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
@@ -142,20 +143,13 @@ class _MyHomePageState extends State<MyHomePage> {
         String? email = user.email;
         print('Google Sign-In successful: ${user.uid}');
         print('User email: $email');
-
-        /*Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => AllListingsPage(),
-          ),
-        );
-         */
       }
     } catch (e) {
       print('Error during Google Sign-In: $e');
     }
   }
 
+  // If signinwithgoogle failed then might need to do web version
   Future<void> _signInWithGoogleWeb(BuildContext context) async {
     GoogleSignIn googleSignIn = GoogleSignIn();
     GoogleSignInAccount? googleUser;
@@ -177,7 +171,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
       UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
       User? user = userCredential.user;
-
+      String phoneForEmailOnly = '1111111111';
       if (user != null) {
         String? email = user.email;
         bool isNewUser = userCredential.additionalUserInfo!.isNewUser;
@@ -189,7 +183,7 @@ class _MyHomePageState extends State<MyHomePage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => SetNameAndPfpPage(phone: '1111111111', email: email),
+              builder: (context) => SetNameAndPfpPage(phone: phoneForEmailOnly, email: email),
             ),
           );
           // Handle new user logic, such as displaying a welcome message
@@ -207,54 +201,12 @@ class _MyHomePageState extends State<MyHomePage> {
           // Handle existing user logic, such as redirecting to the main app page
         }
 
-
       }
     }
   }
 
-
+  // Phone number is verified through recpatcha
   Future<void> verifyPhoneNumber(String phone) async {
-    /*final FirebaseAuth auth = FirebaseAuth.instance; // Create an instance of FirebaseAuth
-
-    try {
-      await auth.verifyPhoneNumber(
-        phoneNumber: phone,
-        verificationCompleted: (PhoneAuthCredential credential) async {
-          // Verification completed automatically (rare on most devices)
-          await auth.signInWithCredential(credential);
-          // Handle successful sign-in (navigate to a different screen, etc.)
-          print('Verification completed automatically');
-          Provider.of<UserState>(context, listen: false).setPhone(phone);
-          Provider.of<UserState>(context, listen: false)
-              .setSignInTime(DateTime.now());
-        },
-        verificationFailed: (FirebaseAuthException e) {
-          // Verification failed, handle error (invalid number, quota exceeded, etc.)
-          print('Verification failed: ${e.message}');
-        },
-        codeSent: (String verificationId, int? resendToken) {
-          // Code sent successfully, navigate to verification code input screen
-          print('Verification code sent: $verificationId');
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => SecurityCodeScreen(
-                verificationId: verificationId,
-                phone: phone,
-              ),
-            ),
-          );
-        },
-        codeAutoRetrievalTimeout: (String verificationId) {
-          // Code retrieval timed out, handle timeout (optional)
-          print('Verification timeout: $verificationId');
-        },
-      );
-    } catch (e) {
-      print('Failed to start phone verification: $e');
-    }
-
-     */
     final FirebaseAuth auth = FirebaseAuth.instance;
 
     try {
@@ -358,10 +310,6 @@ class _MyHomePageState extends State<MyHomePage> {
                       if (phone.length == 10) {
                         String phoneWithCode = '+1$phone';
                         verifyPhoneNumber(phoneWithCode);
-                        // Navigator.push(
-                        //   context,
-                        //   MaterialPageRoute(builder: (context) => SecurityCodeScreen(verificationId: '',)),
-                        // ); If exactly 10 digits, proceed to write to Firebase
                       } else {
                         // Show an error if not 10 digits
                         ScaffoldMessenger.of(context).showSnackBar(

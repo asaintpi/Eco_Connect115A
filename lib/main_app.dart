@@ -3,9 +3,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'firebase_options.dart'; // Import the generated file
 import 'package:geolocator/geolocator.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 
+// Copy of Main.Dart
 void main() async {
 
   WidgetsFlutterBinding.ensureInitialized();

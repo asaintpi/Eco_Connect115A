@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+// Comments displayed in this page
 class CommentListing extends StatefulWidget {
 
   const CommentListing({super.key, required Map this.post, required Map this.comment});
@@ -11,6 +12,7 @@ class CommentListing extends StatefulWidget {
   _CommentListingState createState() => _CommentListingState(post: post, comment: comment);
 }
 
+// Current Post and comment are required to be passed into this class
 class _CommentListingState  extends State<CommentListing> {
   _CommentListingState({required Map this.post, required Map this.comment});
 

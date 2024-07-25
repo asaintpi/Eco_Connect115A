@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:firebase_database/firebase_database.dart';
 
+// Map configurations for page
 class MapScreen extends StatefulWidget {
   @override
   _MapScreenState createState() => _MapScreenState();
@@ -18,6 +19,7 @@ class _MapScreenState extends State<MapScreen> {
     _fetchUserLocations();
   }
 
+  // Locations of all users grabbed
   void _fetchUserLocations() {
     _usersRef.once().then((snapshot) {
       if (snapshot.snapshot.value != null) {

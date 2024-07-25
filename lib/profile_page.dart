@@ -2,12 +2,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'edit_profile_page.dart';  // Import the Edit Profile Page
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
-
+import 'edit_profile_page.dart';
 import 'globalstate.dart';
 
+// Users' profile page
 class ProfilePage extends StatefulWidget {
   @override
   _ProfilePageState createState() => _ProfilePageState();
@@ -18,15 +16,14 @@ class _ProfilePageState extends State<ProfilePage> {
   String name = ''; // Placeholder name
   String bio = '';
   String? profileImageUrl;
-  //File? _profileImage;
-
+  String phoneForEmailOnly = '1111111111'; // Default # for those without phone log-in
   @override
   void initState() {
     super.initState();
     getUserDataByPhone();
-    //_loadProfileImage();
   }
 
+  // User info gotten with email as key
   Future<void> getUserDataByEmail() async {
     final database = FirebaseDatabase.instance.ref();
     final email = Provider.of<UserState>(context, listen: false).email;
@@ -67,12 +64,13 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
+  // User info gotten with phone as key
   Future<void> getUserDataByPhone() async {
     final database = FirebaseDatabase.instance.ref();
     final phone = Provider.of<UserState>(context, listen: false).phone;
 
     try {
-      if (phone == '1111111111') {
+      if (phone == phoneForEmailOnly) {
         print('Phone number is default, retrieving email from database...');
 
         final event = await database.child('users')
@@ -149,7 +147,6 @@ class _ProfilePageState extends State<ProfilePage> {
           });
         } else {
           print('No user found with the phone number: $phone');
-          // Consider using getUserDataByEmail() as a fallback or error handling.
           getUserDataByEmail();
         }
       }

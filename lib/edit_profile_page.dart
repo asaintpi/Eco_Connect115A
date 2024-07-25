@@ -3,8 +3,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart'; // Import the path package
 import 'dart:io';
-import 'profile_page.dart'; // Import the profile page
 
+// Profile Page can be edited by User
 class EditProfilePage extends StatefulWidget {
   @override
   _EditProfilePageState createState() => _EditProfilePageState();
@@ -24,6 +24,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     _loadProfileImage();
   }
 
+  //Placeholders for user entry data
   void _loadUserData() {
     // Simulate loading user data
     setState(() {
@@ -39,6 +40,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     });
   }
 
+  // Image retrieved from database
   void _loadProfileImage() async {
     final directory = await getApplicationDocumentsDirectory();
     final path = directory.path;
@@ -51,6 +53,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     }
   }
 
+  // Image is displayed
   Future<void> _pickImage() async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
@@ -67,6 +70,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     }
   }
 
+  // Chaneges made by user are saved
   void _saveChanges() {
     // Simulate saving changes
     setState(() {

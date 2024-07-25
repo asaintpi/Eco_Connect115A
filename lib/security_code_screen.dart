@@ -5,9 +5,8 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:eco_connect/emailpass.dart';
-import 'set_name_pfp.dart';
 
-
+// Security Screen used for SMS 6 digit code verification
 class SecurityCodeScreen extends StatefulWidget {
   const SecurityCodeScreen({super.key, required this.verificationId, required this.phone});
   final String verificationId;
@@ -20,6 +19,7 @@ class SecurityCodeScreen extends StatefulWidget {
 class _SecurityCodeScreenState extends State<SecurityCodeScreen> {
   final TextEditingController _codeController = TextEditingController();
 
+  // Phone number saved to database
   Future<void> writeUserData(String phone) async {
     final database = FirebaseDatabase.instance.ref();
     final Map<String, dynamic> user = {
@@ -37,6 +37,7 @@ class _SecurityCodeScreenState extends State<SecurityCodeScreen> {
     }
   }
 
+  // Checks if user already has an account
   Future<bool> checkIfUserExists(String phone) async {
     final database = FirebaseDatabase.instance.ref();
     final snapshot = await database.child('users').orderByChild('phone').equalTo(phone).get();
@@ -44,7 +45,7 @@ class _SecurityCodeScreenState extends State<SecurityCodeScreen> {
     return snapshot.exists;
   }
 
-
+  // 6 digit SMS verification
   Future<void> verifyCode() async {
     final String code = _codeController.text.trim();
 
@@ -67,7 +68,6 @@ class _SecurityCodeScreenState extends State<SecurityCodeScreen> {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => MainNavigationPage()));
               }
               else {
-                //writeUserData(widget.phone);
                 Navigator.push(context, MaterialPageRoute(builder: (context) => SetupEmailPasswordPage(phone: widget.phone,)));
 
               }
@@ -105,6 +105,7 @@ class _SecurityCodeScreenState extends State<SecurityCodeScreen> {
     setState(() {});
   }
 
+  // Boxes built for digit entry
   Widget _buildDigitBoxes() {
     return Stack(
       alignment: Alignment.center,
@@ -161,6 +162,7 @@ class _SecurityCodeScreenState extends State<SecurityCodeScreen> {
     );
   }
 
+  // Main widget, page UI
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -224,6 +226,5 @@ class _SecurityCodeScreenState extends State<SecurityCodeScreen> {
       ),
     );
   }
-
 }
 

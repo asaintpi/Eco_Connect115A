@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import 'globalstate.dart';
 import 'main.dart';
 
+// Create a new post by clicking 'Add to Service'
 class MyMakePostPage extends StatefulWidget {
   const MyMakePostPage({Key? key}) : super(key: key);
 
@@ -18,6 +19,7 @@ class MyMakePostPage extends StatefulWidget {
   State<MyMakePostPage> createState() => _MyMakePostPageState();
 }
 
+// List of all service categories
 final List<String> serviceTypes = [
   'Housecleaning',
   'Babysitting',
@@ -28,7 +30,7 @@ final List<String> serviceTypes = [
   'Compost',
   'Carpool',
   'Other'
-]; // List of service options
+];
 String selectedService = serviceTypes[0]; // Initial selection
 
 class _MyMakePostPageState extends State<MyMakePostPage> {
@@ -46,7 +48,7 @@ class _MyMakePostPageState extends State<MyMakePostPage> {
     fetchUserData();
   }
 
-
+  //User data grabbed by phone number
   void fetchUserData() async {
     final String phoneNumber = Provider.of<UserState>(context, listen: false).phone;
     final database = FirebaseDatabase.instance.ref();
@@ -67,7 +69,7 @@ class _MyMakePostPageState extends State<MyMakePostPage> {
   }
 
 
-
+  // Post is written to listings and saved to database
   Future<void> writePost({required String author, required String title, required String body,
     required String service,}) async {
     // get post location

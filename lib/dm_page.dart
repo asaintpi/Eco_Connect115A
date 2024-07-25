@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'chat.dart';
 import 'globalstate.dart';
 
+// Page for Direct Messages Displayed
 class DMPage extends StatelessWidget {
   final DatabaseReference databaseReference = FirebaseDatabase.instance.ref();
   String currentUserPhone = ''; // replace with the current user's phone number
@@ -12,6 +13,7 @@ class DMPage extends StatelessWidget {
     currentUserPhone = Provider.of<UserState>(context, listen: false).phone;
   }
 
+  // User data is retireved by phone number as the key
   Future<String> getNameByPhone(String phone) async {
     final snapshot = await databaseReference.child('users').orderByChild('phone').equalTo(phone).get();
     if (snapshot.exists && snapshot.value is Map) {

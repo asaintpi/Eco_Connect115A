@@ -5,6 +5,7 @@ import 'chat.dart';
 import 'globalstate.dart';
 import 'package:flutter/material.dart';
 
+// Notification Configuration page
 class NotificationService {
   final DatabaseReference _databaseReference = FirebaseDatabase.instance.ref();
   final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
@@ -12,12 +13,12 @@ class NotificationService {
   void initialize() {
     final InitializationSettings initializationSettings = InitializationSettings(
       android: AndroidInitializationSettings('@mipmap/ic_launcher'),
-      //iOS: IOSInitializationSettings(),
     );
 
     _flutterLocalNotificationsPlugin.initialize(initializationSettings);
   }
 
+  // Continously listen for new DMs to the user
   void listenForMessages(BuildContext context) {
     String currentUserPhone = Provider.of<UserState>(context, listen: false).phone;
     DateTime signInTime = Provider.of<UserState>(context, listen: false).signInTime;
@@ -42,7 +43,6 @@ class NotificationService {
                     if (messageTime.isAfter(signInTime)) {
                       print('notif');
                       _showSnackBar(context, Map<String, dynamic>.from(value));
-                      //_showNotification(Map<String, dynamic>.from(value));
                     }
                   } catch (e) {
                     print("Error parsing timestamp: $e");
@@ -100,7 +100,6 @@ class NotificationService {
           importance: Importance.max,
           priority: Priority.high,
         ),
-        //iOS: IOSNotificationDetails(), // Add this if you are targeting iOS as well
       ),
     );
   }

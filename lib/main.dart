@@ -7,12 +7,10 @@ import 'package:geolocator/geolocator.dart';
 import 'package:eco_connect/globalstate.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:flutter/material.dart';
-import 'map_page.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 
+// Main file for running whole app
+
+// Notifications initialized for Firebase
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
 FlutterLocalNotificationsPlugin();
 
@@ -21,6 +19,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   _showNotification(message);
 }
 
+// Notification for new messages shown at any point in the app
 void _showNotification(RemoteMessage message) {
   flutterLocalNotificationsPlugin.show(
     0,
@@ -38,6 +37,7 @@ void _showNotification(RemoteMessage message) {
   );
 }
 
+// Main function for app, initializes Firebase
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -72,6 +72,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
+//User permission for location detected
 Future<void> requestLocationPermission() async {
   LocationPermission permission = await Geolocator.checkPermission();
   if (permission == LocationPermission.denied) {
@@ -86,6 +87,7 @@ Future<void> requestLocationPermission() async {
   }
 }
 
+// User location determined
 Future<List> determinePosition() async {
   await requestLocationPermission();
 

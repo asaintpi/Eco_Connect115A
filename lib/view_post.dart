@@ -4,17 +4,15 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'comment_listing.dart';
 import 'globalstate.dart';
 
+// Page to view a specific post
 class ViewPost extends StatefulWidget {
 
   const ViewPost({super.key, required Map this.post, required String this.postKey});
   final Map post;
   final String postKey;
-
-
 
   @override
   _ViewPostState createState() => _ViewPostState (post: post, postKey: postKey);
@@ -28,6 +26,7 @@ class _ViewPostState extends State<ViewPost> {
   Key _key = UniqueKey();
   final TextEditingController _replyController = TextEditingController();
 
+  // Allow user to write a new comment
   Future<void> writeComment({required String reply, }) async {
     String name = '';
     String? profileUrl;
@@ -169,9 +168,5 @@ class _ViewPostState extends State<ViewPost> {
       ),
 
     );
-
-
   }
-
-
 }

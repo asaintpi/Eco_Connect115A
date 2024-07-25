@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:eco_connect/globalstate.dart';
 import 'view_profile.dart'; // Import the view profile page
 
+// Chat page to allow users to DM each other
 class ChatPage extends StatefulWidget {
   final String otherUserPhone;
 
@@ -27,6 +28,7 @@ class _ChatPageState extends State<ChatPage> {
     _loadMessages();
   }
 
+  // Messages saved in database are retrieved to be displayed
   void _loadMessages() {
     String chatId = _getChatId(senderNumber, widget.otherUserPhone);
     _database.child('chats/$chatId/messages').onChildAdded.listen((event) {
@@ -46,10 +48,12 @@ class _ChatPageState extends State<ChatPage> {
     });
   }
 
+  // Get ID of this specific chat between user1 and user2
   String _getChatId(String phone1, String phone2) {
     return phone1.compareTo(phone2) < 0 ? '${phone1}_$phone2' : '${phone2}_$phone1';
   }
 
+  // Send message to database and to other user
   void _sendMessage() {
     if (_messageController.text.isNotEmpty) {
       String chatId = _getChatId(senderNumber, widget.otherUserPhone);

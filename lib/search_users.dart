@@ -1,20 +1,17 @@
 import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
-
 import 'chat.dart';
 
+// Page to search for other users
 class SearchUsersPage extends StatefulWidget {
   @override
   _SearchUsersPageState createState() => _SearchUsersPageState();
 }
 
-
 class _SearchUsersPageState extends State<SearchUsersPage> {
   final _searchController = TextEditingController();
   final database = FirebaseDatabase.instance.ref('users');
-
-
 
   Widget UserItem ({required Map User}){
     return Container(

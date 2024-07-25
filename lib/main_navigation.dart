@@ -1,16 +1,16 @@
 import 'package:eco_connect/all_listings_page.dart';
 import 'package:eco_connect/dm_page.dart';
 import 'package:eco_connect/profile_page.dart';
-import 'notification.dart';
 import 'package:eco_connect/search_posts.dart';
 import 'package:flutter/material.dart';
 
-
+// Navigator between pages after user logs in
 class MainNavigationPage extends StatefulWidget {
   @override
   _MainNavigationPageState createState() => _MainNavigationPageState();
 }
 
+// List of pages defined from nav bar
 class _MainNavigationPageState extends State<MainNavigationPage> {
   final List<Widget> pages = [AllListingsPage(), SearchPostsPage(), DMPage(), ProfilePage()];
   int _selectedIndex = 0;
@@ -47,9 +47,4 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
 
     );
   }
-
-
-
-
-
 }

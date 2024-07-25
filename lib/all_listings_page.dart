@@ -6,20 +6,19 @@ import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'globalstate.dart';
-import 'dm_page.dart';
 import 'map_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'notification.dart';
-
+// Main page after log-in, a view of all listings
 class AllListingsPage extends StatefulWidget {
   @override
   _AllListingsPageState createState() => _AllListingsPageState();
 }
-
+// Class initialized with Firebase Notifications configurations
 class _AllListingsPageState extends State<AllListingsPage> {
   int _tagSelection = 0;
-  bool _locationPermissionAsked = false; // State variable to track if the dialog has been shown
+  bool _locationPermissionAsked = false;
   Key _key = UniqueKey();
   final firebaseMessaging = FirebaseMessaging.instance;
   final NotificationService _notificationService = NotificationService();
@@ -30,13 +29,13 @@ class _AllListingsPageState extends State<AllListingsPage> {
     bool locationPerm =
         Provider.of<LocationProvider>(context, listen: false).locationOn;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!_locationPermissionAsked) {
+      if (!_locationPermissionAsked) { // User is asked for permission to share their location
         if (locationPerm == false) {
           _askLocationPermission();
         }
       }
     });
-    requestNotifPermission();
+    requestNotifPermission(); // User is asked for permission to receive notifications
     _notificationService.initialize();
     _notificationService.listenForMessages(context);
   }
@@ -108,6 +107,7 @@ class _AllListingsPageState extends State<AllListingsPage> {
       "Other",
     ];
 
+    // Database instance for saving post data
     final database = FirebaseDatabase.instance.ref().child('posts');
 
     return Scaffold(
@@ -313,6 +313,8 @@ class _AllListingsPageState extends State<AllListingsPage> {
   }
 }
 
+
+// Firebase Notifications Config for having notif display for a new message received
 final notificationsPlugin = FlutterLocalNotificationsPlugin();
 final databaseReference = FirebaseDatabase.instance.reference();
 
@@ -335,20 +337,6 @@ void showNotification(String title, String body) async {
 }
 
 void setupDatabaseListener() {
-  /*databaseReference.child('messages').onChildAdded.listen((event) {
-    // Ensure that event.snapshot.value is of type Map<String, dynamic>
-    final message = event.snapshot.value as Map<String, dynamic>?;
-
-    if (message != null) {
-      final title = message['title'] as String?;
-      final body = message['body'] as String?;
-
-      if (title != null && body != null) {
-        showNotification(title, body);
-      }
-    }
-  });
-  */
 }
 
 void main() {

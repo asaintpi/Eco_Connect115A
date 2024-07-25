@@ -1,4 +1,3 @@
-import 'package:eco_connect/chat.dart';
 import 'package:eco_connect/main_navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -7,12 +6,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
-import 'package:provider/provider.dart';
-import 'all_listings_page.dart';
-import 'package:path/path.dart' as Path;
 
-import 'globalstate.dart';
-
+// Page for new users to set their name and profile settings
 class SetNameAndPfpPage extends StatefulWidget {
   final String phone; // Add phone parameter to accept phone number
   final String email;
@@ -29,7 +24,7 @@ class _SetNameAndPfpPageState extends State<SetNameAndPfpPage> {
   Uint8List? _webImage;
   String? _extension;
 
-
+  // Display profile image
   Future<void> _pickImage() async {
     try {
       final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
@@ -52,6 +47,7 @@ class _SetNameAndPfpPageState extends State<SetNameAndPfpPage> {
     }
   }
 
+  // Write profile data to Firebase
   Future<void> writeUserData(String phone, String email, String name,
       String description) async {
     final database = FirebaseDatabase.instance.ref();
@@ -74,10 +70,12 @@ class _SetNameAndPfpPageState extends State<SetNameAndPfpPage> {
 
   }
 
+  // Check if image file is null
   String _getFileExtension(String path) {
     return path.split('.').last; // Extract file extension
   }
 
+  // Save profile image to Firebase
   Future<void> uploadImageToFirebase() async {
     try {
       if (_image == null && _webImage == null) {
@@ -109,7 +107,8 @@ class _SetNameAndPfpPageState extends State<SetNameAndPfpPage> {
 
       // Determine the user identifier (phone or email)
       String userKey = widget.phone;
-      if (userKey == '1111111111') {
+      String phoneForEmailOnly = '1111111111';
+      if (userKey == phoneForEmailOnly) {
         userKey = widget.email;
       }
 
@@ -270,6 +269,7 @@ class _SetNameAndPfpPageState extends State<SetNameAndPfpPage> {
     );
   }
 
+  // Display image based on whether its web or mobile
   ImageProvider? getBackgroundImage() {
     if (_image != null || _webImage != null) {
       if (kIsWeb) {

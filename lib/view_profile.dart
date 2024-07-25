@@ -2,10 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'globalstate.dart';
 
-
+// View another users' profile
 class ViewProfilePage extends StatefulWidget {
   final String otherUserPhone;
 
@@ -22,17 +21,19 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
   int? numberOfRatings;
   String userEmail = 'Loading...';
   String profileImageUrl = '';
+  String phoneForEmailOnly = '1111111111';
 
   @override
   void initState() {
     super.initState();
-    if (widget.otherUserPhone == '1111111111') {
+    if (widget.otherUserPhone == phoneForEmailOnly) {
       getUserDataByEmail();
     } else {
       getUserDataByPhone();
     }
   }
 
+  // Retrieve user instance by email
   Future<void> getUserDataByEmail() async {
     final database = FirebaseDatabase.instance.ref();
     final email = Provider.of<UserState>(context, listen: false).email;
@@ -54,8 +55,6 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
             print('User found: $user');
             setState(() {
               userName = user['name'];
-              //userPhone = user['phone'];
-              //userEmail = user['email'];
               profileImageUrl = user['profileImageUrl'];
               userRating = user['rating']?.toDouble() ?? 0.0;
               numberOfRatings = user['numberOfRatings']?.toInt() ?? 0;
@@ -72,6 +71,7 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
     }
   }
 
+  // Retrieve user instance by phone
   Future<void> getUserDataByPhone() async {
     final database = FirebaseDatabase.instance.ref();
     final phone = widget.otherUserPhone;
@@ -100,7 +100,7 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
         });
       } else {
         print('No user found with the phone number: $phone');
-        if (phone == '1111111111') {
+        if (phone == phoneForEmailOnly) {
           getUserDataByEmail();
         }
       }
@@ -109,6 +109,7 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
     }
   }
 
+  // Save rating of user to Firebase
   Future<void> saveRating(double rating) async {
     final database = FirebaseDatabase.instance.ref();
     final phone = widget.otherUserPhone;
@@ -143,6 +144,7 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
     }
   }
 
+  // Display 5 stars for rating
   void _showRatingDialog() {
     showDialog(
       context: context,
@@ -183,11 +185,12 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
     );
   }
 
+  // Change User rating
   Future<void> updateUserRating(double rating) async {
     final database = FirebaseDatabase.instance.ref();
 
     DataSnapshot snapshot;
-    if (widget.otherUserPhone == '1111111111') {
+    if (widget.otherUserPhone == phoneForEmailOnly) {
       final email = Provider.of<UserState>(context, listen: false).email;
       final query = database.child('users').orderByChild('email').equalTo(email).limitToFirst(1);
       final result = await query.once();
@@ -218,6 +221,7 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
     }
   }
 
+  // UI for star rating
   Widget _buildStarRating(double? rating) {
     if (rating == null) {
       return Text('Rating: N/A', style: TextStyle(color: Colors.white));
@@ -292,23 +296,6 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
                 style: TextStyle(color: Colors.white, fontSize: 18),
               ),
             ),
-            /*
-            SizedBox(height: 10),
-            Center(
-              child: Text(
-                'Phone: $userPhone',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-
-            SizedBox(height: 10),
-            Center(
-              child: Text(
-                'Email: $userEmail',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-            */
             SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,

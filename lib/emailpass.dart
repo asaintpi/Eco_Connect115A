@@ -1,4 +1,3 @@
-import 'package:eco_connect/all_listings_page.dart';
 import 'package:eco_connect/globalstate.dart';
 import 'package:eco_connect/security_code_screen.dart';
 import 'package:eco_connect/set_name_pfp.dart';
@@ -6,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 
+//Email and Pass configured for new users
 class SetupEmailPasswordPage extends StatefulWidget {
   final String phone;
 
@@ -21,6 +21,8 @@ class _SetupEmailPasswordPageState extends State<SetupEmailPasswordPage> {
   final TextEditingController _phoneController = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   String email = '';
+
+  // Phone number authentication
   Future<void> verifyPhoneNumber(String phone) async {
     final FirebaseAuth auth = FirebaseAuth.instance; // Create an instance of FirebaseAuth
 
@@ -61,6 +63,7 @@ class _SetupEmailPasswordPageState extends State<SetupEmailPasswordPage> {
     }
   }
 
+  // Email and pass data saved for a user
   Future<void> _registerWithEmailPassword() async {
     String email = _emailController.text;
     String password = _passwordController.text;

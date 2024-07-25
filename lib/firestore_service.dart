@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+// Saving Posts to the Firestore database
 class FirestoreService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
@@ -25,10 +26,12 @@ class FirestoreService {
     });
   }
 
+  // Retrieve Posts
   Stream<QuerySnapshot> getPosts() {
     return _db.collection('posts').orderBy('timestamp', descending: true).snapshots();
   }
 
+  // Update Posts
   Future<void> updatePostStatus(String postId, String status) async {
     await _db.collection('posts').doc(postId).update({'status': status});
   }

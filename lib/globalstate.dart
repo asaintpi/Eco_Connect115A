@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+// All variables needed by the program locally are defined by UserState for a specific user instance
 class UserState with ChangeNotifier {
   String _phone = '';
   String _email = '';

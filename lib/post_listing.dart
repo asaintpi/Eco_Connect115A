@@ -1,12 +1,8 @@
-import 'dart:typed_data';
-
 import 'package:eco_connect/view_post.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'chat.dart';
 
+// Page for displaying a post, post and postkey required for this class
 class PostListing extends StatefulWidget {
   const PostListing({Key? key, required this.post, required this.postKey}) : super(key: key);
 
@@ -30,9 +26,6 @@ class _PostListingState extends State<PostListing> {
 
   @override
   Widget build(BuildContext context) {
-
-
-
     return Container(
       padding: const EdgeInsets.all(15),
       child: GestureDetector(

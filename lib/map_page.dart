@@ -1,12 +1,10 @@
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+// Page to display map with user locations
 class MapPage extends StatefulWidget {
   @override
   _MapPageState createState() => _MapPageState();
@@ -25,6 +23,7 @@ class _MapPageState extends State<MapPage> {
     _getUserLocation();
   }
 
+  // Current users' location retrieved
   Future<void> _getUserLocation() async {
     userPosition = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
     _controller?.animateCamera(
@@ -35,6 +34,7 @@ class _MapPageState extends State<MapPage> {
     _loadPosts(userPosition);
   }
 
+  // Posts with locations are marked
   Future<void> _loadPosts(Position position) async {
     // Replace with your API endpoint
     final response = await http.get(Uri.parse('https://ecoconnect-d26ca.firebaseapp.com/'));
@@ -47,6 +47,7 @@ class _MapPageState extends State<MapPage> {
 
   }
 
+  // Markers are displayed
   void _updateMarkers() {
     setState(() {
       _markers = posts.where((post) {
