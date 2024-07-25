@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class MapScreen extends StatefulWidget {
   @override
@@ -7,34 +8,55 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
-  final Set<Marker> _markers = {};
-  final LatLng _center = const LatLng(37.7749, -122.4194); // Default to San Francisco
+  late GoogleMapController mapController;
+  final DatabaseReference _usersRef = FirebaseDatabase.instance.ref().child('users');
+  Map<MarkerId, Marker> _markers = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserLocations();
+  }
+
+  void _fetchUserLocations() {
+    _usersRef.once().then((snapshot) {
+      if (snapshot.snapshot.value != null) {
+        Map<dynamic, dynamic> users = snapshot.snapshot.value as Map<dynamic, dynamic>;
+        users.forEach((userId, userData) {
+          double latitude = userData['location']['latitude'];
+          double longitude = userData['location']['longitude'];
+          String name = userData['name'] ?? 'No Name';
+
+          MarkerId markerId = MarkerId(userId);
+          Marker marker = Marker(
+            markerId: markerId,
+            position: LatLng(latitude, longitude),
+            infoWindow: InfoWindow(title: name),
+          );
+
+          setState(() {
+            _markers[markerId] = marker;
+          });
+        });
+      }
+    }).catchError((error) {
+      print('Failed to fetch user locations: $error');
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Map View'),
-      ),
+      appBar: AppBar(title: Text('User Locations')),
       body: GoogleMap(
         onMapCreated: (GoogleMapController controller) {
-          setState(() {
-            _markers.add(
-              Marker(
-                markerId: MarkerId('center'),
-                position: _center,
-                infoWindow: InfoWindow(
-                  title: 'San Francisco',
-                ),
-              ),
-            );
-          });
+          mapController = controller;
         },
         initialCameraPosition: CameraPosition(
-          target: _center,
-          zoom: 11.0,
+          target: LatLng(37.7749, -122.4194), // Default to San Francisco
+          zoom: 10,
         ),
-        markers: _markers,
+        markers: Set<Marker>.of(_markers.values),
       ),
     );
   }

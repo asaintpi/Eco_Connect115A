@@ -34,7 +34,7 @@ class _MapPageState extends State<MapPage> {
 
   Future<void> _loadPosts(Position position) async {
     // Replace with your API endpoint
-    final response = await http.get(Uri.parse('YOUR_API_ENDPOINT'));
+    final response = await http.get(Uri.parse('https://ecoconnect-d26ca.firebaseapp.com/'));
     if (response.statusCode == 200) {
       setState(() {
         posts = json.decode(response.body);
@@ -46,20 +46,26 @@ class _MapPageState extends State<MapPage> {
   void _updateMarkers() {
     setState(() {
       _markers = posts.where((post) {
+        final location = post['location'];
+        final latitude = location['latitude'];
+        final longitude = location['longitude'];
         final distance = Geolocator.distanceBetween(
           userPosition.latitude,
           userPosition.longitude,
-          post['latitude'],
-          post['longitude'],
+          latitude,
+          longitude,
         );
         return distance <= _getSelectedDistance();
       }).map((post) {
+        final location = post['location'];
+        final latitude = location['latitude'];
+        final longitude = location['longitude'];
         return Marker(
-          markerId: MarkerId(post['id'].toString()),
-          position: LatLng(post['latitude'], post['longitude']),
+          markerId: MarkerId(post['title']), // Unique identifier, using title
+          position: LatLng(latitude, longitude),
           infoWindow: InfoWindow(
             title: post['title'],
-            snippet: post['description'],
+            // Add description if available
           ),
         );
       }).toSet();
