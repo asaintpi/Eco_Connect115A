@@ -37,11 +37,7 @@ class _MapPageState extends State<MapPage> {
 
   Future<void> _loadPosts(Position position) async {
     // Replace with your API endpoint
-<<<<<<< HEAD
     final response = await http.get(Uri.parse('https://ecoconnect-d26ca.firebaseapp.com/'));
-=======
-    final response = await http.get(Uri.parse('https://ecoconnect-d26ca-default-rtdb.firebaseio.com'));
->>>>>>> 2085ec4b90cdffa113ec54d14f6d635ff3c8b2a8
     if (response.statusCode == 200) {
       setState(() {
         posts = json.decode(response.body);
